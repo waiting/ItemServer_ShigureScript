@@ -1,0 +1,140 @@
+
+//XY变化量,拾取方向
+定义数组(directionDeltas, 0)
+加入成员(directionDeltas, "0,-1,4")
+//加入成员(directionDeltas, "1,-1,5")
+加入成员(directionDeltas, "1,0,6")
+//加入成员(directionDeltas, "1,1,7")
+加入成员(directionDeltas, "0,1,0")
+//加入成员(directionDeltas, "-1,1,1")
+加入成员(directionDeltas, "-1,0,2")
+//加入成员(directionDeltas, "-1,-1,3")
+directionDeltaCount = 取成员数(directionDeltas)
+
+//无效范围
+分割文本(invaildRangeX, "550~552", "~")
+分割文本(invaildRangeY, "330~334", "~")
+
+//捡拾物品列表
+定义数组(pickupNames, 0)
+加入成员(pickupNames, "魔石")
+加入成员(pickupNames, "地的水晶碎片")
+加入成员(pickupNames, "水的水晶碎片")
+加入成员(pickupNames, "火的水晶碎片")
+加入成员(pickupNames, "风的水晶碎片")
+加入成员(pickupNames, "卡片？")
+pickupNamesCount = 取成员数(pickupNames)
+
+循环(人物详细信息(34) == "肯吉罗岛")
+	// begin 捡东西模块
+	iiName = 0
+	循环(人物详细信息(33) < 20)
+		iName = iiName % pickupNamesCount + 1
+		pickupName = pickupNames.iName
+		pickupCount = 20
+		发送聊天( iName$ ":" $pickupNames.iName, 0, 1)
+		pickupCoordStr = 获取周围信息(pickupName, "物品")
+		如果(pickupCoordStr != "" && 人物详细信息(33) < 20 && 获取物品数量(pickupName) < pickupCount)
+			分割文本(pickupCoord, pickupCoordStr, "|")
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			flag = 0
+			//物品在北方
+			如果(pickupCoord.2 == curX && pickupCoord.3 == curY-1)
+				flag = 1
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S0", 4, 1)
+				拾取物品(0)
+				等待(800)
+			如果尾()
+			//物品在东北方
+			如果(pickupCoord.2 == curX+1 && pickupCoord.3 == curY-1)
+				flag = 2
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S1", 4, 1)
+				拾取物品(1)
+				等待(800)
+			如果尾()
+			//物品在东方
+			如果(pickupCoord.2 == curX+1 && pickupCoord.3 == curY)
+				flag = 3
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S2", 4, 1)
+				拾取物品(2)
+				等待(800)
+			如果尾()
+			//物品在东南方
+			如果(pickupCoord.2 == curX+1 && pickupCoord.3 == curY+1)
+				flag = 4
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S3", 4, 1)
+				拾取物品(3)
+				等待(800)
+			如果尾()
+			//物品在南方
+			如果(pickupCoord.2 == curX && pickupCoord.3 == curY+1)
+				flag = 5
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S4", 4, 1)
+				拾取物品(4)
+				等待(800)
+			如果尾()
+			//物品在西南方
+			如果(pickupCoord.2 == curX-1 && pickupCoord.3 == curY+1)
+				flag = 6
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S5", 4, 1)
+				拾取物品(5)
+				等待(800)
+			如果尾()
+			//物品在西方
+			如果(pickupCoord.2 == curX-1 && pickupCoord.3 == curY)
+				flag = 7
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S6", 4, 1)
+				拾取物品(6)
+				等待(800)
+			如果尾()
+			//物品在西北方
+			如果(pickupCoord.2 == curX-1 && pickupCoord.3 == curY-1)
+				flag = 8
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S7", 4, 1)
+				拾取物品(7)
+				等待(800)
+			如果尾()
+
+			//都不在
+			如果(flag == 0)
+				发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")\S其他位置", 6, 1)
+				//捡中间
+				iDirection = 1
+				循环(iDirection <= 4)
+					分割文本(directionDelta, directionDeltas.iDirection, ",")
+					gotoX = pickupCoord.2 + directionDelta.1
+					gotoY = pickupCoord.3 + directionDelta.2
+
+					//不在无效范围才移动
+					如果( !(gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2) )
+						发送聊天("移动一格("$ gotoX $ "," $ gotoY $ ")", 1, 1)
+
+						自动寻路(gotoX,gotoY)
+
+						curX = 人物详细信息(35)
+						curY = 人物详细信息(36)
+						//走到指定位置
+						如果(curX == gotoX && curY == gotoY)
+							拾取物品(directionDelta)
+						如果尾()
+
+						跳出循环()
+
+					如果尾()
+
+					iDirection = iDirection + 1
+				循环尾()
+
+			如果尾()
+
+//			pickupCoordStr = 获取周围信息(pickupName,"物品")
+		如果尾()
+		iiName = iiName + 1
+	循环尾()
+	// end 捡东西模块
+
+循环尾()
+
+
+

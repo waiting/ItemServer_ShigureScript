@@ -1,0 +1,473 @@
+// 狩猎 - Lv2葱
+// 可选择是否交换产物，20个蕃茄可交换小麦粉(16)\鸡蛋(12)\葱(8)\青椒(8)
+// 任意位置启动
+//
+
+//原始产物清单
+定义数组(products, 0)
+加入成员(products, "葱|40")
+加入成员(products, "蕃茄|40")
+productsCount = 取成员数(products)
+
+//目标产物清单
+定义数组(targetProducts, productsCount)
+
+//目标产物是否保存到银行的清单
+//不保存到银行则卖店
+//要保存为"名称|堆叠数量"，不保存为""
+定义数组(productSaves, productsCount)
+
+//采集坐标点
+collectCoordStr = "660,235"
+
+//采集技能
+skillVerb = "狩猎"
+
+//银行密码如果没有就留空
+bankPwd = ""
+//信息输入("请输入银行密码（没有请留空）", "买菜的时雨", "")
+
+//根据你的银行空间大小,自行修改20 40 60 80.
+bankSize = 20
+//信息输入("请输入银行大小（［20-40-60-80］注意:错误的银行大小可能导致脚本出错！）","买菜的时雨", 20)
+
+//可用于交换的产物名
+changeableName = "蕃茄"
+
+//交换物品的索引【1.小麦粉，2.鸡蛋，3.葱，4.青椒】
+iChangeProduct = 1
+
+//是否交换
+isChangeProduct = 0
+
+//是否需要存银行
+isSaveToBank = 0
+
+i = 1
+循环(i <= productsCount)
+	targetProducts.i = products.i
+	//产物可交换，询问是否交换
+	如果(寻找文本(products.i, changeableName) != -1)
+		分割文本(productField, products.i, "|")
+		如果(信息提示("请问[" $ productField.1 $ "(" $ productField.2 $ ")" $ "]是要交换，还是卖店或存银行【交换:是，卖店或存银行:否】", 36, "交换否") == 5)
+			//交换成什么【1.小麦粉，2.鸡蛋，3.葱，4.青椒】
+			iChangeProduct = 信息输入("1.小麦粉，2.鸡蛋，3.葱，4.青椒","交换成什么",iChangeProduct)
+			//交换物清单
+			定义数组(changeProducts, 0)
+			加入成员(changeProducts, "小麦粉|40")
+			加入成员(changeProducts, "鸡蛋|40")
+			加入成员(changeProducts, "葱|40")
+			加入成员(changeProducts, "青椒|40")
+			targetProducts.i = changeProducts.iChangeProduct
+			isChangeProduct = 1
+			自动叠加道具(2, products.i)
+		如果尾()
+	如果尾()
+	//是否保存到银行
+	productSaves.i = ""
+	自动叠加道具(2, targetProducts.i)
+	分割文本(productField, targetProducts.i, "|")
+	如果(信息提示("请问[" $ productField.1 $ "(" $ productField.2 $ ")" $ "]是要存银行还是卖店【存银行:是，卖店:否】", 36, "存银行否") == 5)
+		productSaves.i = targetProducts.i
+		isSaveToBank = 1
+	如果尾()
+
+	i = i + 1
+循环尾()
+
+//自动堆叠相应产物
+自动叠加道具(1)
+
+//当前是去干什么
+iCurAction = 信息输入("1.采集，2.回补，3.存银行，4.卖产物，5.换产物","去干什么",1)
+定义数组(curActions, 0)
+加入成员(curActions, "采集")
+加入成员(curActions, "回补")
+加入成员(curActions, "存银行")
+加入成员(curActions, "卖产物")
+加入成员(curActions, "换产物")
+curAction = curActions.iCurAction
+
+//是否等待搬入仓库
+isWaitForSaveRepo = 0
+
+//数据统计
+初始化计时器()
+
+timeSavePoint = 0
+onceProduct1Yield = 0
+product1Yield = 0
+
+循环(1)
+	循环(人物详细信息(34) == "艾尔莎岛")
+		flag = 0
+		如果(flag == 0)
+			移动到(140,105)
+			循环(人物详细信息(34) != "里谢里雅堡")
+				对话NPC(1,2,"","","",2)
+				tryCount = 0
+				循环(tryCount < 20 && 人物详细信息(34) != "里谢里雅堡")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "里谢里雅堡")
+		flag = 0
+		如果(curAction == "采集" || curAction == "卖产物" || curAction == "存银行" || curAction == "换产物")
+			flag = 1
+			//从里堡南边出去
+			自动寻路(41,98)
+			循环(人物详细信息(34) != "法兰城")
+				等待(100)
+			循环尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			flag = 2
+			curPet = 当前出战宠物()
+			如果(人物详细信息(2) < 人物详细信息(3) || 人物详细信息(4) < 人物详细信息(5) || 宠物详细信息(curPet,2) < 宠物详细信息(curPet,3) || 宠物详细信息(curPet,4) < 宠物详细信息(curPet,5))
+				//恢复血魔
+				自动寻路(34,89)
+				护士恢复(1)
+			如果尾()
+
+			curAction = "采集"
+			//判断是否要卖产物
+			isSale = 0
+			i = 1
+			循环(i <= productsCount && !isSale)
+				如果(productSaves.i == "")
+					isSale = 1
+				如果尾()
+				i = i + 1
+			循环尾()
+			//卖完去银行
+			如果(isSale)
+				curAction = "卖产物"
+			如果尾()
+			//直接去银行
+			如果(!isSale)
+				curAction = "存银行"
+			如果尾()
+
+		如果尾()
+
+		如果(flag == 0)
+			发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "法兰城")
+		flag = 0
+		如果(curAction == "采集")
+			flag = 1
+			flag1 = 0
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			//从银行出来
+			如果(curX >= 230 && curX <= 240 && curY >= 106 && curY <= 116)
+				flag1 = 1
+				// 自动寻路(242,100)
+				// 人物转身(2)
+				// 循环(人物详细信息(34) != "市场三楼\S-\S修理专区\\z0")
+					// 等待(100)
+				// 循环尾()
+				// 人物转身(0)
+				// 循环(人物详细信息(34) != "法兰城")
+					// 等待(100)
+				// 循环尾()
+				// 人物转身(0)
+				// 循环(curX != 63 || curY != 79)
+					// curX = 人物详细信息(35)
+					// curY = 人物详细信息(36)
+					// 等待(100)
+				// 循环尾()
+			如果尾()
+			//从里堡（南）出来
+			如果(curX >= 143 && curX <= 163 && curY >= 91 && curY <= 111)
+				flag1 = 3
+				自动寻路(162,130)
+				人物转身(2)
+				循环(curX != 72 || curY != 123)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+				循环尾()
+				人物转身(2)
+				循环(curX != 233 || curY != 78)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+				循环尾()
+			如果尾()
+
+			//在法兰的其他地方
+			如果(flag1 == 0)
+				//出法兰东门
+				自动寻路(281,88)
+				循环(人物详细信息(34) != "芙蕾雅")
+					等待(100)
+				循环尾()
+			如果尾()
+
+		如果尾()
+
+		如果(curAction == "换产物")
+			flag = 4
+			自动寻路(153,241)
+			循环(人物详细信息(34) != "芙蕾雅")
+				等待(100)
+			循环尾()
+		如果尾()
+
+		如果(curAction == "卖产物")
+			flag = 2
+			自动寻路(155,122)
+			saleItems = ""
+			i = 1
+			循环(i <= productsCount)
+				如果(productSaves.i == "")
+					如果(saleItems != "")
+						saleItems = saleItems $ "|"
+					如果尾()
+					分割文本(targetProductField,targetProducts.i, "|")
+					saleItems = saleItems $ targetProductField.1
+				如果尾()
+				i = i + 1
+			循环尾()
+
+			如果(saleItems != "")
+				发送聊天("卖:" $ saleItems,0,1)
+				出售物品(2, saleItems)
+			如果尾()
+
+			如果(isSaveToBank != 0)
+				curAction = "存银行"
+			如果尾()
+			//不需要存银行
+			如果(isSaveToBank == 0)
+				自动寻路(162,130)
+				人物转身(2)
+				循环(curX != 72 || curY != 123)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+				循环尾()
+				人物转身(2)
+				循环(curX != 233 || curY != 78)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+				循环尾()
+				curAction = "采集"
+			如果尾()
+		如果尾()
+
+		如果(curAction == "存银行")
+			flag = 3
+			自动寻路(141,148)
+			人物转身(0)
+			curX = -1
+			curY = -1
+			循环(curX != 63 || curY != 79)
+				curX = 人物详细信息(35)
+				curY = 人物详细信息(36)
+				等待(100)
+			循环尾()
+			人物转身(0)
+			循环(curX != 242 || curY != 100)
+				curX = 人物详细信息(35)
+				curY = 人物详细信息(36)
+				等待(100)
+			循环尾()
+			自动寻路(238,111)
+			循环(人物详细信息(34) != "银行\\z0")
+				等待(100)
+			循环尾()
+		如果尾()
+
+		如果(flag == 0)
+			发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "银行\\z0")
+		flag = 0
+		如果(curAction == "采集")
+			flag = 1
+			自动寻路(2,13)
+			循环(人物详细信息(34) != "法兰城")
+				等待(100)
+			循环尾()
+		如果尾()
+
+		如果(curAction == "存银行")
+			flag = 2
+			分割文本(targetProductField,targetProducts.1, "|")
+
+			如果(isWaitForSaveRepo == 0)
+				//效率计算
+				onceProduct1Yield = 获取物品数量(targetProductField.1)
+				product1Yield = product1Yield + onceProduct1Yield
+
+				onceProduct1YieldUnit = (onceProduct1Yield/targetProductField.2)*1000\1/1000
+				product1YieldUnit = (product1Yield/targetProductField.2)*1000\1/1000
+				//花费的时间
+				totalTimeCost = 返回计时器()
+				timeCost = totalTimeCost - timeSavePoint
+
+				effyOnceProduct1Yield = (onceProduct1Yield / timeCost)*1000 \ 1 / 1000
+				effyAvgProduct1Yield = (product1Yield / totalTimeCost)*1000 \ 1 / 1000
+
+				effyOnceProduct1YieldUnit = (onceProduct1Yield / timeCost / targetProductField.2)*1000 \ 1 / 1000
+				effyAvgProduct1YieldUnit = (product1Yield / totalTimeCost / targetProductField.2)*1000 \ 1 / 1000
+
+				自动寻路(11,8)
+				打开银行(2,bankPwd)
+				i = 1
+				循环(i <= productsCount)
+					如果(productSaves.i != "")
+						分割文本(productSaveField,productSaves.i, "|")
+						存取物品("存物品", productSaveField.1, productSaveField.2, "", bankSize)
+						如果(获取物品数量(productSaveField.1) >= productSaveField.2 * 9)
+							isWaitForSaveRepo = 1
+							循环(获取信息记录("<继续挖>", "普通") != "")
+							循环尾()
+						如果尾()
+					如果尾()
+					i = i + 1
+				循环尾()
+				如果(isWaitForSaveRepo == 0)
+					curAction = "采集"
+				如果尾()
+				如果(isWaitForSaveRepo != 0)
+					发送聊天("等待仓库搬运...",6,1)
+				如果尾()
+
+				发送聊天(targetProductField.1 $ ":(" $ onceProduct1Yield $ "\\z" $ onceProduct1YieldUnit $ "组){" $ product1Yield $ "\\z" $ product1YieldUnit $ "组}", 4, 1)
+				发送聊天("单次("$timeCost$"s):" $ effyOnceProduct1Yield $ "\\z" $ effyOnceProduct1YieldUnit $ "组\S平均("$totalTimeCost$"s):" $ effyAvgProduct1Yield $ "\\z" $ effyAvgProduct1YieldUnit $ "组", 1, 1)
+				发送聊天("每小时预期:" $ effyAvgProduct1Yield * 3600 $ "\\z" $ (effyAvgProduct1Yield * 3600 / targetProductField.2 * 1000 \ 1 / 1000) $ "组", 0, 1)
+
+				timeSavePoint = 返回计时器()
+			如果尾()
+
+			如果(isWaitForSaveRepo != 0)
+				如果(获取信息记录("<继续挖>", "普通") != "" && 获取物品数量(targetProductField.1) < targetProductField.2)
+					timeSavePoint = 返回计时器()
+					isWaitForSaveRepo = 0
+					curAction = "采集"
+				如果尾()
+			如果尾()
+		如果尾()
+
+		如果(flag == 0)
+			发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "芙蕾雅")
+		flag = 0
+		如果(curAction == "采集")
+			flag = 1
+			分割文本(collectCoord, collectCoordStr, ",")
+			自动寻路(collectCoord.1,collectCoord.2)
+			循环(获取信息记录("<回补>","普通") != "")
+				//clear <回补>
+			循环尾()
+			//开始挖矿
+			分割文本(targetProductField,products.1,"|")
+			发送聊天("开始挖[" $ targetProductField.1 $ "]...",4,1)
+			myMana = 人物详细信息(4)
+			如果(myMana != "")
+				循环(人物详细信息(4) > 1 && 人物详细信息(33) < 20)
+					高速采集(skillVerb,5100,"","","")
+					如果(获取信息记录("<回补>","普通") != "")
+						跳出循环()
+					如果尾()
+				循环尾()
+			如果尾()
+			如果(myMana == "")
+				发送聊天("外挂可能出现问题，请重启外挂和游戏，但依然可继续采集！",6,1)
+				高速采集(skillVerb,5200,1,"","")
+			如果尾()
+
+			curAction = "回补"
+			//挖完直接判断是否交换
+			如果(isChangeProduct != 0 && 获取物品数量(changeableName) > 19)
+				curAction = "换产物"
+				等待(1000)
+				登出回城()
+				循环(人物详细信息(34) != "艾尔莎岛")
+					等待(100)
+				循环尾()
+				跳出循环()
+			如果尾()
+		如果尾()
+
+		如果(curAction == "换产物")
+			flag = 3
+			自动寻路(513,282)
+			循环(人物详细信息(34) != "曙光骑士团营地")
+				等待(100)
+			循环尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			flag = 2
+			等待(1000)
+			登出回城()
+			循环(人物详细信息(34) != "艾尔莎岛")
+				等待(100)
+			循环尾()
+		如果尾()
+
+		如果(flag == 0)
+			发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "曙光骑士团营地")
+		如果(curAction == "换产物")
+			自动寻路(42,56)
+			循环(人物详细信息(34) != "曙光营地医院\\z0")
+				等待(100)
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "曙光营地医院\\z0")
+		如果(curAction == "换产物")
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			//第一层
+			如果(curX < 80)
+				自动寻路(15,12)
+				循环(curX != 97 || curY != 12)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+				循环尾()
+			如果尾()
+			//第二层
+			如果(curX > 80)
+				自动寻路(96,5)
+				交换物品(0,changeableName,iChangeProduct,"","")
+				
+				curAction = "回补"
+			如果尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			等待(1000)
+			登出回城()
+			循环(人物详细信息(34) != "艾尔莎岛")
+				等待(100)
+			循环尾()
+		如果尾()
+	循环尾()
+
+循环尾()
+

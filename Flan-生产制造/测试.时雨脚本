@@ -1,0 +1,44 @@
+// 物品种类：
+// 0  单手剑
+// 2  枪
+// 6  回力镖
+// 7  盾
+// 8  头盔
+// 10 铠
+// 13 靴
+// 18 戒指
+// 20 耳环
+// 22 水晶
+// 26 不明
+// 30 木材
+// 38 宝石
+
+// (1头部 2身体 3主手 4副手 5脚部 6左饰品 7右饰品 8水晶)
+iPackPos = 1
+循环(iPackPos <= 28)
+	itemName = 物品详细信息(iPackPos, 1)
+	如果(itemName != "")
+		itemLv = 物品详细信息(iPackPos, 3)
+		itemStack = 物品详细信息(iPackPos, 4)
+		itemCate = 物品详细信息(iPackPos, 5)
+		itemCurDur = 物品详细信息(iPackPos, 6)
+		itemMaxDur = 物品详细信息(iPackPos, 7)
+
+		发送聊天( "Lv" $ itemLv $ "[" $ itemName $ "]\S耐久:" $ itemCurDur $ "/" $ itemMaxDur, 0, 1)
+	如果尾()
+	iPackPos = iPackPos + 1
+循环尾()
+
+result = 高速武修("")
+如果(result == "")
+	发送聊天("修理成功",4,1)
+如果尾()
+如果(result == 0)
+	发送聊天("没有需要修理的",1,1)
+如果尾()
+如果(result == 1)
+	发送聊天("技能等级不够",6,1)
+如果尾()
+如果(result == 2)
+	发送聊天("魔力不足",6,1)
+如果尾()

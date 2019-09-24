@@ -1,0 +1,299 @@
+// 刷武修 - 修理工
+
+humanBackHP = 人物详细信息(3)*0.5
+humanBackMP = 人物详细信息(5)*0.8
+
+// 刷几次5技（当判断技能为5之时+1，如果到这个数，就不再触发重学技能）
+countLv5Skill = 信息输入("刷几次五技（修理技能耐力+3,灵巧+3,智力-2）","刷几次五技",17)
+
+//是去干什么
+iCurAction = 信息输入("1.捡装备，2.扔装备，3.修装备，4.重学技能","去干什么",1)
+定义数组(curActions, 0)
+加入成员(curActions, "捡装备")
+加入成员(curActions, "扔装备")
+加入成员(curActions, "修装备")
+加入成员(curActions, "重学技能")
+curAction = curActions.iCurAction
+
+//是否打卡
+isPunchTheClock = 信息提示("是否不打卡？【是】不打卡，【否】打卡", 36) != 5
+
+//给配合者听
+//发送聊天("<我要刷双百>", 0, 1)
+
+//装备名称
+equipName = "国民剑"
+//装备商店编号
+equipNo = 1
+//装备欲获取数量或实际数量（会自动检测）
+equipCount = 20
+
+//扔装备坐标（里堡）
+//朝西扔
+throwOrientation = 6
+定义数组(throwCoords, 0)
+加入成员(throwCoords, "12,17")
+加入成员(throwCoords, "15,17")
+加入成员(throwCoords, "18,17")
+
+循环(1)
+
+	循环(人物详细信息(34) == "艾尔莎岛")
+		flag = 0
+		如果(flag == 0)
+			移动到(140,105)
+			循环(人物详细信息(34) != "里谢里雅堡")
+				对话NPC(1,2,"","","",2)
+				tryCount = 0
+				循环(tryCount < 20 && 人物详细信息(34) != "里谢里雅堡")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "法兰城")
+		//当前要干嘛（买装备，弄坏，修装备，重学技能）
+		如果(curAction == "买装备")
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			flag = 0
+			//从里堡（南）出来
+			如果(curX >= 149 && curX <= 156 && curY >= 100 && curY <= 120)
+				flag = 1
+				自动寻路(162,130)
+				人物转身(2)
+				tryCount = 0
+				curX = 人物详细信息(35)
+				curY = 人物详细信息(36)
+				循环(tryCount < 40 && (curX != 72 || curY != 123))
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+				自动寻路(94,98)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "希洛克武器店\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "希洛克武器店\\z0")
+		//当前要干嘛（买装备，弄坏，修装备，重学技能）
+		如果(curAction == "买装备")
+			移动到(17,13)
+			//道具格子
+			nItemsPlace = 20 - 人物详细信息(33)
+			//还有格子
+			如果(nItemsPlace > 0)
+				//取得装备实际数量
+				itemCount1 = 获取物品数量(equipName)
+				如果(itemCount1 < equipCount)
+					如果(equipCount - itemCount1 <= nItemsPlace)
+						//买武器
+						购买物品(2, equipNo $ "|" $ (equipCount - itemCount1))
+					如果尾()
+					如果(equipCount - itemCount1 > nItemsPlace)
+						//买武器
+						购买物品(2, equipNo $ "|" $ nItemsPlace)
+					如果尾()
+				如果尾()
+
+			如果尾()
+			equipCount = 获取物品数量(equipName)
+			curAction = "扔装备"
+			登出回城()
+			等待(1000)
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "冒险者训练中心\\z0")
+		如果(curAction == "扔装备")
+			循环(获取信息记录("无法放置道具。","系统") != "")
+				//清除放不下痕迹
+			循环尾()
+			iCoord = 0
+			循环(获取物品数量(equipName) > 0)
+				分割文本(throwCoord, throwCoords.(iCoord%3+1), ",")
+				自动寻路(throwCoord.1,throwCoord.2)
+				人物转身(throwOrientation)
+				//循环(获取物品数量(equipName) > 0 && 获取信息记录("无法放置道具。","系统") == "")
+					丢弃物品(equipName,2,1,1)
+					等待(1000)
+				//循环尾()
+				iCoord = iCoord + 1
+			循环尾()
+			
+			curAction = "捡装备"
+			自动寻路(8,19)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "里谢里雅堡")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "里谢里雅堡")
+		//当前要干嘛（买装备，弄坏，修装备，重学技能）
+		如果(人物详细信息(2) < 人物详细信息(3) || 人物详细信息(4) < 人物详细信息(5))
+			自动寻路(34,89)
+			//恢复血魔
+			护士恢复(1)
+		如果尾()
+
+		如果(curAction == "买装备")
+			自动寻路(41,98)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "法兰城")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+		如果(curAction == "扔装备")
+			自动寻路(52,61)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "冒险者训练中心\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+		如果(curAction == "捡装备")
+			自动寻路(62,83)
+			循环(获取信息记录("捡到了" $ equipName, "系统") != "")
+				//清除捡到痕迹
+			循环尾()
+			//捡
+			tryCount = 0
+			equipCoord = 获取周围信息(equipName,"物品")
+			循环(equipCoord != "" && 人物详细信息(33) < 20 && tryCount < 10)
+				分割文本(equipCoords, equipCoord, "|")
+				//地点太远，采用自动寻路()通过否则采用移动到()
+				curX = 人物详细信息(35)
+				curY = 人物详细信息(36)
+				isTooFar = 0
+				如果(equipCoords.2 >curX+7 || equipCoords.2 <curX-7 || equipCoords.3 >curY+7 || equipCoords.3 <curY-7)
+					发送聊天(equipCoords.1 $ "(" $ equipCoords.2 $ "," $ equipCoords.3 $ ")\S太远", 6, 1)
+					isTooFar = 1
+				如果尾()
+				如果(isTooFar==0)
+					移动到(equipCoords.2,equipCoords.3-1)
+					拾取物品(4)
+					等待(200)
+				如果尾()
+				如果(isTooFar!=0)
+					自动寻路(equipCoords.2,equipCoords.3-1)
+					拾取物品(4)
+					等待(200)
+				如果尾()
+				
+				r1 = 获取信息记录("捡到了" $ equipName, "系统")
+				发送聊天(equipCoord $ ":" $ r1 $ ":" $ tryCount, 0, 1)
+				如果(r1 == "")
+					tryCount = tryCount + 1
+				如果尾()
+
+				equipCoord = 获取周围信息(equipName,"物品")
+			循环尾()
+
+			如果(获取物品数量(equipName) > 0)
+				curAction = "修装备"
+				等待(1000)
+			如果尾()
+
+		如果尾()
+		如果(curAction == "修装备")
+			//判断手上拿没拿武器
+			dur1 = 物品详细信息(3, 6)
+			dur2 = 物品详细信息(4, 6)
+			//左手还是右手位置
+			pos = 3
+			dur = 0
+			maxDur = 0
+			如果(dur1 != "")
+				pos = 3
+				dur = dur1
+				maxDur = 物品详细信息(3, 7)
+			如果尾()
+			如果(dur2 != "")
+				pos = 4
+				dur = dur2
+				maxDur = 物品详细信息(4, 7)
+			如果尾()
+			iPackPos = 9
+			循环(iPackPos <= 28 && 物品详细信息(pos, 1) != "")
+				itemName = 物品详细信息(iPackPos, 1)
+				如果(itemName == "")
+					移动物品(pos,iPackPos)
+					等待(1000)
+					//发送聊天(pos $ "->" $ iPackPos, 0, 1)
+					跳出循环()
+				如果尾()
+				iPackPos = iPackPos + 1
+			循环尾()
+
+			自动寻路(57,83)
+			//打卡
+			如果(isPunchTheClock != 0)
+				对话NPC(3,7,"","","",2)
+			如果尾()
+
+			r = 高速武修("")
+			发送聊天("修理[" $ equipName $ "]:" $ r, 4, 1)
+			//修理完全OK
+			如果(r == "" || r == 0)
+				curAction = "扔装备"
+			如果尾()
+
+			//取消打卡
+			如果(isPunchTheClock != 0)
+				对话NPC(3,7,"","","",2)
+			如果尾()
+			
+			//判断等级
+			lvSkill = 获取技能信息("修理武器")
+			如果(lvSkill == 1)
+			如果尾()
+			如果(lvSkill == 2)
+			如果尾()
+			如果(lvSkill == 3)
+			如果尾()
+			如果(lvSkill == 4)
+			如果尾()
+			如果(lvSkill > 4)
+				如果(countLv5Skill > 0)
+					curAction = "重学技能"
+					发送聊天("请手动重学技能",0,1)
+					countLv5Skill = countLv5Skill - 1
+				如果尾()
+			如果尾()
+		如果尾()
+		如果(curAction == "重学技能")
+			
+		如果尾()
+
+	循环尾()
+
+
+
+
+
+
+循环尾()
+
+
+
+
+
+
+
+

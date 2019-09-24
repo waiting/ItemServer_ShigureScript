@@ -1,0 +1,31 @@
+
+//枚举物品
+iPackPos = 9
+循环(iPackPos <= 28)
+    发送聊天( "<" $ iPackPos $ ">...", 0, 1)
+    itemName = 物品详细信息(iPackPos, 1)
+    如果(itemName != "")
+        itemType = 物品详细信息(iPackPos, 5)
+        itemCurDur = 物品详细信息(iPackPos, 7)
+        itemMaxDur = 物品详细信息(iPackPos, 8)
+        发送聊天( "<" $ iPackPos $ ">[" $ itemName $ ":" $ itemType $ "]\S耐久:" $ itemCurDur $ "/" $ itemMaxDur $ "...", 0, 1)
+        等待(500)
+    如果尾()
+    iPackPos = iPackPos + 1
+循环尾()
+
+//自动丢弃道具
+自动丢弃道具(0)
+自动丢弃道具(1)
+自动丢弃道具(1,"物品名")
+
+//跟随
+targetName = ""
+循环(1)
+    retInfoStr = 获取周围信息(targetName,"玩家")
+    发送聊天(retInfoStr,4,1)
+    如果(retInfoStr!="")
+        分割文本(coordInfo, retInfoStr, "|")
+        移动到(coordInfo.2,coordInfo.3)
+    如果尾()
+循环尾()

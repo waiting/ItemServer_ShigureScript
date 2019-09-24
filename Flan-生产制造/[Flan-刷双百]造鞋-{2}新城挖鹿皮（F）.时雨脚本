@@ -1,0 +1,187 @@
+// 此脚本是【造鞋刷双百F】的配合脚本
+// 新城挖鹿皮需要【Lv1狩猎】而非【狩猎体验】
+
+
+//是否丢弃鹿皮，如果不丢弃则需主动交易，接收方需要手动操作
+isDiscardDeerskin = 信息提示("是否丢弃鹿皮，如果不丢弃则需主动交易，接收方需要手动操作。【是】丢弃，【否】主动交易", 36) == 5
+
+//防止冲突，目标人名
+targetName = ""
+
+waitSay = 信息提示("是否自动获取目标人名，等待他说话，注意请不要加队！",36) == 5
+如果(waitSay != 0)
+    speaker = ""
+    循环( 1 )
+        speaker = 获取信息记录( "<我要刷双百>", "普通")
+        如果(speaker != "")
+            targetName = speaker
+            跳出循环()
+        如果尾()
+
+    循环尾()
+如果尾()
+
+如果(waitSay == 0)
+    targetName = 信息输入("请指定你要刷双百的人的名字","为了防止冲突","")
+如果尾()
+
+发送聊天("【Flan脚本】配合["$targetName$"]刷双百！", 1, 1)
+
+自动叠加道具(2, "鹿皮|40")
+自动叠加道具(1)
+
+isBack = 0
+
+循环( 1 )
+
+    循环(人物详细信息(34) == "艾尔莎岛")
+        //魔不满，回补
+        //如果( 人物详细信息(4) < 人物详细信息(5) )
+        //  isBack = 1
+        //如果尾()
+
+        如果( isBack == 0 )
+            自动寻路(130,50)
+            循环(人物详细信息(34) != "盖雷布伦森林")
+                等待(100)
+            循环尾()
+        如果尾()
+
+        如果(isBack != 0)
+            移动到(140,105)
+            循环(人物详细信息(34) != "里谢里雅堡")
+                对话NPC(1,2,"","","",2)
+                tryCount = 0
+                循环(tryCount < 20 && 人物详细信息(34) != "里谢里雅堡")
+                    等待(100)
+                    tryCount = tryCount + 1
+                循环尾()
+            循环尾()
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "盖雷布伦森林")
+        如果( isBack == 0 )
+            自动寻路(175,182)
+            高速采集("狩猎", 5200, 1, "", "")
+            发送聊天("<回去造鞋>",1,1)
+            //回去
+            isBack = 1
+        如果尾()
+
+        如果( isBack != 0 )
+            登出回城()
+            等待(1000)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "里谢里雅堡")
+        如果(isBack == 0)
+            登出回城()
+            等待(1000)
+        如果尾()
+
+        如果(isBack != 0)
+            如果( 人物详细信息(4) < 人物详细信息(5) )
+                //先去恢复
+                自动寻路(34,89)
+                护士恢复(1)
+            如果尾()
+
+            自动寻路(59,82)
+            
+            //鹿皮库存
+            分割文本( stockNumber, 获取物品数量("鹿皮") / 40, "." )
+            stock = stockNumber.1
+
+            //怎么做（什么都不做，扔，捡）
+            howToDo = ""
+            //身上还有一组鹿皮
+            循环(stock > 0)
+                移动到(59,82)
+                如果(isDiscardDeerskin == 0)
+                    amount = 1
+                    循环( amount < 21 )
+                        speaker = 获取信息记录( "<给我" $ amount $ "鹿皮>", "普通")
+                        如果(speaker != "" && (targetName == "" || targetName != "" && speaker == targetName) )
+                            characterInfo = 获取周围信息(speaker,"玩家")
+                            如果(characterInfo != "")
+                                分割文本( characterInfos, characterInfo, "|" )
+                                移动到(characterInfos.2, characterInfos.3 - 1)
+                                加入队伍(4,characterInfos.1)
+                                tradeCount = amount
+                                如果(amount > stock)
+                                    tradeCount = stock
+                                如果尾()
+                                发送聊天("给[" $ characterInfos.1 $ "]" $ tradeCount $ "鹿皮", 1, 1)
+                                发送聊天(主动交易("鹿皮" $ "|" $ tradeCount * 40, characterInfos.1, 60), 1, 1)
+
+                                退出队伍()
+
+                            如果尾()
+
+                        如果尾()
+                        amount = amount + 1
+                    循环尾()
+                如果尾()
+
+                如果(isDiscardDeerskin != 0)
+                    speaker = 获取信息记录( "<给我扔鹿皮>", "普通")
+                    如果(speaker != "" && (targetName == "" || targetName != "" && speaker == targetName) )
+                        howToDo = "扔"
+                    如果尾()
+                    speaker = 获取信息记录( "<给我捡回去>", "普通")
+                    如果(speaker != "" && (targetName == "" || targetName != "" && speaker == targetName) )
+                        howToDo = "捡"
+                    如果尾()
+
+                    如果(howToDo == "扔")
+                        丢弃物品("鹿皮",39,1,2)
+                        等待(2000)
+                    如果尾()
+
+                    如果(howToDo == "捡")
+                        //捡鹿皮
+                        deerskinCoord = 获取周围信息("鹿皮","物品")
+                        循环( deerskinCoord != "" && 人物详细信息(33) < 20 )
+                            //发送聊天(deerskinCoord)
+                            分割文本(deerskinCoords, deerskinCoord, "|")
+                            //鹿皮地点太远，采用自动寻路()通过否则采用移动到()
+                            curX = 人物详细信息(35)
+                            curY = 人物详细信息(36)
+                            isTooFar = 0
+                            如果(deerskinCoords.2 >curX+7 || deerskinCoords.2 <curX-7 || deerskinCoords.3 >curY+7 || deerskinCoords.3 <curY-7)
+                                发送聊天(deerskinCoords.1 $ "(" $ deerskinCoords.2 $ "," $ deerskinCoords.3 $ ")\S太远", 6, 1)
+                                isTooFar = 1
+                            如果尾()
+                            如果(isTooFar==0)
+                                移动到(deerskinCoords.2,deerskinCoords.3 - 1)
+                                拾取物品(4)
+                                等待(200)
+                            如果尾()
+                            如果(isTooFar!=0)
+                                自动寻路(deerskinCoords.2,deerskinCoords.3 - 1)
+                                拾取物品(4)
+                                等待(200)
+                            如果尾()
+
+                            deerskinCoord = 获取周围信息("鹿皮","物品")
+                        循环尾()
+
+                        howToDo = ""
+                    如果尾()
+
+                如果尾()
+
+                //鹿皮库存
+                分割文本( stockNumber, 获取物品数量("鹿皮") / 40, "." )
+                stock = stockNumber.1
+            循环尾()
+
+            isBack = 0
+
+        如果尾()
+    循环尾()
+
+循环尾()
+

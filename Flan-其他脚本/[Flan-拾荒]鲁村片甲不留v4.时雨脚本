@@ -1,0 +1,747 @@
+//鲁村踩点拾荒
+
+//找普通护士
+isCommonNurse = 1
+
+// curPet = 当前出战宠物()
+// humanBackHP = 人物详细信息(3)*0.5
+// humanBackMP = 人物详细信息(5)*0.05
+// petBackHP = 宠物详细信息(curPet,3)*0.4
+// petBackMP = 宠物详细信息(curPet,5)*0.05
+// isAutoSettings = 信息提示("是否以下列数值作为设置{ " $ "人回补血:" $ humanBackHP $ ", " $ "人回补魔:" $ humanBackMP $ ", " $ "宠回补血:" $ petBackHP $ ", " $ "宠回补魔:" $ petBackMP $ " }","36")
+// 如果(isAutoSettings != 5)
+	// humanBackHP = 信息输入("人回补血值","人回补血值",humanBackHP)
+	// humanBackMP = 信息输入("人回补魔值","人回补魔值",humanBackMP)
+	// petBackHP = 信息输入("宠回补血值","宠回补血值",petBackHP)
+	// petBackMP = 信息输入("宠回补魔值","宠回补魔值",petBackMP)
+// 如果尾()
+
+//当前要干嘛
+iCurAction = 信息输入("1.拾荒，2.回补，3.去鲁村","去干什么",1)
+定义数组(curActions, 0)
+加入成员(curActions, "拾荒")
+加入成员(curActions, "回补")
+加入成员(curActions, "去鲁村")
+curAction = curActions.iCurAction
+
+//有些地图名称一样，所以通过前一张地图来判断
+prevMapName = ""
+
+//捡拾地点【x,y,expired(s)】
+定义数组(pickupPlaces, 0)
+
+//加入成员(pickupPlaces, "321,883,600")
+
+加入成员(pickupPlaces, "308,883,800")
+加入成员(pickupPlaces, "309,870,400")
+加入成员(pickupPlaces, "311,863,50")
+
+加入成员(pickupPlaces, "307,875,150")
+
+加入成员(pickupPlaces, "284,892,400")
+加入成员(pickupPlaces, "292,871,1200")
+加入成员(pickupPlaces, "290,898,150")
+加入成员(pickupPlaces, "297,896,600")
+
+pickupPlacesCount = 取成员数(pickupPlaces)
+//有效期
+定义数组(placeExpires, pickupPlacesCount)
+
+//无效范围
+分割文本(invaildRangeX, "321~400", "~")
+分割文本(invaildRangeY, "883~884", "~")
+
+//快速移动排除范围
+定义数组(xMoveLimits,0)
+加入成员(xMoveLimits,"886,891,886,891,309,310")
+加入成员(xMoveLimits,"869,876,870,876,300,301")
+加入成员(xMoveLimits,"884,885,884,886,293,294")
+xMoveLimitsCount = 取成员数(xMoveLimits)
+定义数组(yMoveLimits,0)
+加入成员(yMoveLimits,"277,280,270,279,878,879")
+加入成员(yMoveLimits,"292,301,300,309,873,874")
+加入成员(yMoveLimits,"294,301,285,297,884,885")
+加入成员(yMoveLimits,"299,310,295,305,873,874")
+加入成员(yMoveLimits,"309,321,310,321,874,882")
+加入成员(yMoveLimits,"306,321,310,321,881,882")
+加入成员(yMoveLimits,"306,313,305,321,889,890")
+yMoveLimitsCount = 取成员数(yMoveLimits)
+
+//捡拾物品列表
+定义数组(pickupNames, 0)
+//加入成员(pickupNames, "魔石")
+//加入成员(pickupNames, "地的水晶碎片")
+加入成员(pickupNames, "水的水晶碎片")
+加入成员(pickupNames, "火的水晶碎片")
+加入成员(pickupNames, "风的水晶碎片")
+加入成员(pickupNames, "卡片？")
+
+pickupNamesCount = 取成员数(pickupNames)
+
+//X变化量,Y变化量,拾取方向
+定义数组(directionDeltas, 0)
+加入成员(directionDeltas, "0,-1,4")
+加入成员(directionDeltas, "1,-1,5")
+加入成员(directionDeltas, "1,0,6")
+加入成员(directionDeltas, "1,1,7")
+加入成员(directionDeltas, "0,1,0")
+加入成员(directionDeltas, "-1,1,1")
+加入成员(directionDeltas, "-1,0,2")
+加入成员(directionDeltas, "-1,-1,3")
+directionDeltaCount = 取成员数(directionDeltas)
+
+//计时器
+初始化计时器()
+
+//自动叠加道具(2, "星之砂|40")
+//自动叠加道具(2, "秘文之皮|40")
+//自动叠加道具(2, "奇香木|40")
+//自动叠加道具(1)
+
+//数据统计
+fragment1Start = 获取物品数量("水的水晶碎片")
+fragment2Start = 获取物品数量("火的水晶碎片")
+fragment3Start = 获取物品数量("风的水晶碎片")
+fragment1 = 0
+fragment2 = 0
+fragment3 = 0
+card1 = 0
+card2 = 0
+goldStart = 人物详细信息(28)
+gold = 0
+perFragment1 = 0
+perFragment2 = 0
+perFragment3 = 0
+perCard1 = 0
+perCard2 = 0
+perGold = 0
+timeSavePoint = 0
+
+//次数
+goCount = 0
+
+循环( 1 )
+	循环(人物详细信息(34) == "艾尔莎岛")
+		移动到(140,105)
+		循环(人物详细信息(34) != "里谢里雅堡")
+			对话NPC(1,2,"","","",2)
+			tryCount = 0
+			循环(tryCount < 20 && 人物详细信息(34) != "里谢里雅堡")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "里谢里雅堡")
+		自动寻路(41,51)
+		移动到(41,50)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "里谢里雅堡\S1楼\\z0")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "里谢里雅堡\S1楼\\z0")
+		自动寻路(45,21)
+		移动到(45,20)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "启程之间\\z0")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "启程之间\\z0")
+		退出队伍()
+		循环(人物详细信息(34) != "伊尔村的传送点\\z0")
+			自动寻路(43,32)
+			对话NPC(2,2,"","","",2)
+			tryCount = 0
+			循环(tryCount < 20 && 人物详细信息(34) != "伊尔村的传送点\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "伊尔村的传送点\\z0")
+		自动寻路(12,18)
+		移动到(12,17)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "村长的家\\z0")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "村长的家\\z0")
+		自动寻路(7,13)
+		移动到(6,13)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "伊尔村")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "伊尔村")
+		循环(人物详细信息(34) != "伊尔")
+			自动寻路(58,71)
+			对话NPC(2,2,"","","",2)
+			tryCount = 0
+			循环(tryCount < 20 && 人物详细信息(34) != "伊尔")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "伊尔")
+		自动寻路(29,21)
+		移动到(30,21)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "港湾管理处\\z0")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+		prevMapName = "伊尔"
+	循环尾()
+
+	循环(人物详细信息(34) == "港湾管理处\\z0")
+		flag = 0
+		如果(prevMapName == "伊尔")
+			flag = 1
+			循环(人物详细信息(34) != "往哥拉尔栈桥")
+				自动寻路(25,25)
+				对话NPC(0,7,"","","",2)
+				tryCount = 0
+				循环(tryCount < 20 && 人物详细信息(34) != "往哥拉尔栈桥")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			循环尾()
+		如果尾()
+
+		如果(prevMapName == "往伊尔栈桥")
+			flag = 2
+			自动寻路(22,30)
+			移动到(22,31)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "阿凯鲁法")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+		如果(flag == 0)
+			prevMapName = "伊尔"
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "往哥拉尔栈桥")
+		循环(人物详细信息(34) != "铁达尼号\\z0")
+			自动寻路(51,50)
+			对话NPC(2,2,"","","",2)
+			tryCount = 0
+			循环(tryCount < 20 && 人物详细信息(34) != "铁达尼号\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "铁达尼号\\z0")
+		如果(获取信息记录( "本船已到达了哥拉尔港。", "普通") == "船员")
+			循环(人物详细信息(34) != "往伊尔栈桥")
+				自动寻路(70,26)
+				对话NPC(2,2,"","","",2)
+				tryCount = 0
+				循环(tryCount < 20 && 人物详细信息(34) != "往伊尔栈桥")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "往伊尔栈桥")
+		循环(人物详细信息(34) != "哥拉尔镇\S港湾管理处\\z0")
+			自动寻路(84,55)
+			对话NPC(0,2,"","","",2)
+			tryCount = 0
+			循环(tryCount < 20 && 人物详细信息(34) != "哥拉尔镇\S港湾管理处\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		循环尾()
+		prevMapName = "往伊尔栈桥"
+	循环尾()
+
+	循环(人物详细信息(34) == "哥拉尔镇\S港湾管理处\\z0")
+		自动寻路(14,14)
+		移动到(14,15)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "哥拉尔镇")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "哥拉尔镇")
+		place = 0
+		curX = 人物详细信息(35)
+		curY = 人物详细信息(36)
+		//从港湾出来96,211
+		如果(curX >= 86 && curX <= 106 && curY >= 201 && curY <= 221)
+			place = 1
+			自动寻路(118,214)
+		如果尾()
+		//传送石2 118,214
+		如果(curX >= 113 && curX <= 123 && curY >= 209 && curY <= 219)
+			place = 2
+			移动到(118,214)
+			人物转身(2)
+			循环(curX != 120 || curY != 107)
+				curX = 人物详细信息(35)
+				curY = 人物详细信息(36)
+			循环尾()
+		如果尾()
+		//传送石1 120,107
+		如果(curX >= 115 && curX <= 125 && curY >= 102 && curY <= 112)
+			place = 3
+			自动寻路(175,105)
+			移动到(176,105)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "库鲁克斯岛")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+		如果(place == 0)
+			自动寻路(175,105)
+			移动到(176,105)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "库鲁克斯岛")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "库鲁克斯岛")
+		如果(curAction == "拾荒")
+			goCount = goCount + 1
+			iiPoint = 0
+			发送聊天("--拾荒--...",9,1)
+			isContinueTryPickup = 0
+			tryChangeMap = 0
+			循环(isContinueTryPickup < 1 && tryChangeMap < 2)
+				iPoint = iiPoint % pickupPlacesCount + 1
+				
+				如果(goCount%2==0)
+					iPoint = pickupPlacesCount - iPoint + 1
+				如果尾()
+				
+				分割文本(pickupPlace, pickupPlaces.iPoint, ",")
+				curTime = 返回计时器()
+				发送聊天("地点" $ iPoint $ "(" $ pickupPlace.1 $ "," $ pickupPlace.2 $ ")\S冷却:" $ (placeExpires.iPoint - curTime) $ "s\S计时:" $ curTime $ "s...", 0, 1)
+
+				如果(curTime > placeExpires.iPoint)
+					自动寻路(pickupPlace.1, pickupPlace.2)
+					拾取物品(0)
+					拾取物品(1)
+					拾取物品(2)
+					拾取物品(3)
+					拾取物品(4)
+					拾取物品(5)
+					拾取物品(6)
+					拾取物品(7)
+
+					// begin 捡东西模块
+					isMovePlace = 0
+					循环(人物详细信息(33) < 20 && !isMovePlace && tryChangeMap < 2)
+						curX = 人物详细信息(35)
+						curY = 人物详细信息(36)
+						iName = 1
+						iNameMinDSquare = 0
+						minDSquare = 9999
+						minDSquareItemCoordStr = ""
+						//探测最近的物品
+						循环(iName <= pickupNamesCount)
+							itemCoordStr = 获取周围信息(pickupNames.iName, "物品")
+							//探测到物品
+							如果(itemCoordStr != "")
+								分割文本(itemCoord,itemCoordStr,"|")
+								dSquare = (itemCoord.2 - curX) * (itemCoord.2 - curX) + (itemCoord.3 - curY) * (itemCoord.3 - curY)
+								如果(dSquare < minDSquare)
+									minDSquare = dSquare
+									iNameMinDSquare = iName
+									minDSquareItemCoordStr = itemCoordStr
+								如果尾()
+								//发送聊天(itemCoord.1 $ ":(" $ itemCoord.2 $ "," $ itemCoord.3 $ ")\S" $ dSquare $ "...", 2, 1)
+							如果尾()
+							iName = iName + 1
+						循环尾()
+
+						如果(iNameMinDSquare != 0)
+							分割文本(minDSquareItemCoord,minDSquareItemCoordStr,"|")
+							gotoX = minDSquareItemCoord.2
+							gotoY = minDSquareItemCoord.3
+
+							isInvaildRange = gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2
+							//不在无效范围才移动
+							如果(!isInvaildRange)
+								发送聊天("角色:(" $ curX $ "," $ curY $ ")\S" $ pickupNames.iNameMinDSquare $ ":(" $ gotoX $ "," $ gotoY $ ")\SDS:" $ minDSquare $ "...", 2, 1)
+
+								isAutoMove = minDSquare > 299
+
+								j = 1
+								循环(j <= xMoveLimitsCount && !isAutoMove)
+									分割文本(xMoveLimit,xMoveLimits.j,",")
+									如果((curY>=xMoveLimit.1&&curY<=xMoveLimit.2&&gotoY>=xMoveLimit.3&&gotoY<=xMoveLimit.4) != 0)
+										如果(((curX>=xMoveLimit.6&&gotoX<=xMoveLimit.5) || (curX<=xMoveLimit.5&&gotoX>=xMoveLimit.6)) != 0)
+											isAutoMove = 1
+											跳出循环()
+										如果尾()
+									如果尾()
+									j = j + 1
+								循环尾()
+
+								j = 1
+								循环(j <= yMoveLimitsCount && !isAutoMove)
+									分割文本(yMoveLimit,yMoveLimits.j,",")
+									如果((curX>=yMoveLimit.1&&curX<=yMoveLimit.2&&gotoX>=yMoveLimit.3&&gotoX<=yMoveLimit.4) != 0)
+										如果(((curY>=yMoveLimit.6&&gotoY<=yMoveLimit.5) || (curY<=yMoveLimit.5&&gotoY>=yMoveLimit.6)) != 0)
+											isAutoMove = 1
+											跳出循环()
+										如果尾()
+									如果尾()
+									j = j + 1
+								循环尾()
+								
+								如果(!isAutoMove)
+									移动到(gotoX,gotoY)
+								如果尾()
+								如果(isAutoMove)
+									自动寻路(gotoX,gotoY)
+								如果尾()
+
+								curX = 人物详细信息(35)
+								curY = 人物详细信息(36)
+
+								//走到指定位置
+								//如果(curX == gotoX && curY == gotoY)
+									循环(获取战斗状态())
+									循环尾()
+									拾取物品(0)
+									拾取物品(1)
+									拾取物品(2)
+									拾取物品(3)
+									拾取物品(4)
+									拾取物品(5)
+									拾取物品(6)
+									拾取物品(7)
+								//如果尾()
+							如果尾()
+
+							如果(isInvaildRange)
+								iDirection = 1
+								循环(iDirection <= directionDeltaCount)
+									分割文本(directionDelta, directionDeltas.iDirection, ",")
+									gotoX = minDSquareItemCoord.2 + directionDelta.1
+									gotoY = minDSquareItemCoord.3 + directionDelta.2
+
+									发送聊天("(" $ minDSquareItemCoord.2 $ "," $ minDSquareItemCoord.3 $ ")欲移动(" $ gotoX $ "," $ gotoY $ ")", 0, 1)
+									//不在无效范围才移动
+									如果( !(gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2) )
+										发送聊天("(" $ minDSquareItemCoord.2 $ "," $ minDSquareItemCoord.3 $ ")移动至(" $ gotoX $ "," $ gotoY $ ")...", 1, 1)
+
+										自动寻路(gotoX,gotoY)
+
+										curX = 人物详细信息(35)
+										curY = 人物详细信息(36)
+										//走到指定位置
+										//如果(curX == gotoX && curY == gotoY)
+											循环(获取战斗状态())
+											循环尾()
+											拾取物品(0)
+											拾取物品(1)
+											拾取物品(2)
+											拾取物品(3)
+											拾取物品(4)
+											拾取物品(5)
+											拾取物品(6)
+											拾取物品(7)
+										//如果尾()
+										跳出循环()
+									如果尾()
+
+									iDirection = iDirection + 1
+								循环尾()
+							如果尾()
+
+							amount = 0
+							循环(获取信息记录("捡到了","系统") != "")
+								amount = amount + 1
+							循环尾()
+							发送聊天("捡了(" $ amount $ ")个物品...", 1, 1)
+							fullPrompt = 0
+							循环(获取信息记录("道具栏已满。","系统") != "")
+								fullPrompt = fullPrompt + 1
+							循环尾()
+							如果(amount == 0 && fullPrompt == 0)
+								发送聊天("探测到物品却捡不了物品，换图(倒计:" $ ( 2 - tryChangeMap ) $ ")...", 1, 1)
+								tryChangeMap = tryChangeMap + 1
+							如果尾()
+							如果(amount != 0 || fullPrompt != 0)
+								tryChangeMap = 0
+							如果尾()
+
+						如果尾()
+
+						如果(iNameMinDSquare == 0)
+							发送聊天("探测不到物品，移至下一个地点...",1,1)
+							isMovePlace = 1
+						如果尾()
+
+					循环尾()
+					// end 捡东西模块
+
+					curTime = 返回计时器()
+					placeExpires.iPoint = curTime + pickupPlace.3
+				如果尾()
+
+				isFull = 人物详细信息(33) > 19
+				//包不满，移至下一地点
+				如果(!isFull)
+					iiPoint = iiPoint + 1
+				如果尾()
+				//包满继续尝试的次数标序
+				如果(isFull)
+					isContinueTryPickup = isContinueTryPickup + 1
+				如果尾()
+			循环尾()
+
+			如果(tryChangeMap < 2)
+				发送聊天("--拾毕--...",9,1)
+				curAction = "回补"
+			如果尾()
+
+			如果(tryChangeMap > 1)
+				自动寻路(322,883)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "鲁米那斯")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			自动寻路(322,883)
+			//移动到(322,883)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "鲁米那斯")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+		如果(curAction == "去鲁村")
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			如果(curY < 527)
+				循环(curX != 476 || curY != 528)
+					//桥上士兵处
+					自动寻路(476,526)
+					对话NPC(2,7,"","","",1)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					tryCount = 0
+					循环(tryCount < 20 && (curX != 476 || curY != 528))
+						等待(100)
+						curX = 人物详细信息(35)
+						curY = 人物详细信息(36)
+						tryCount = tryCount + 1
+					循环尾()
+				循环尾()
+			如果尾()
+
+			自动寻路(322,883)
+			//移动到(322,883)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "鲁米那斯")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "鲁米那斯")
+		如果(curAction == "回补")
+			//是否含问号卡片
+			isNoCard = 获取物品数量("卡片？") < 1
+			如果(!isNoCard)
+				//自动寻路(87,35)
+				移动到(87,35)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "医院\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+			如果(isNoCard)
+				//自动寻路(88,51)
+				移动到(88,51)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "杂货店\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+
+		如果尾()
+		如果(curAction == "拾荒")
+			//自动寻路(61,29)
+			移动到(61,29)
+			移动到(60,29)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "库鲁克斯岛")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+		如果(curAction == "去鲁村")
+			初始化计时器()
+			curAction = "拾荒"
+			如果(人物详细信息(2) < 人物详细信息(3) || 人物详细信息(4) < 人物详细信息(5))
+				curAction = "回补"
+				自动寻路(87,35)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "医院\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "医院\\z0")
+		如果(curAction == "拾荒")
+			移动到(5,13)
+			移动到(4,13)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "鲁米那斯")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			移动到(18,15)
+			IdentifyOK = 1
+			循环(IdentifyOK != 0)
+				IdentifyOK = 高速鉴定()
+				护士恢复(4)
+			循环尾()
+
+			移动到(5,13)
+			移动到(4,13)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "鲁米那斯")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "杂货店\\z0")
+		如果(curAction == "拾荒")
+			移动到(5,13)
+			移动到(4,13)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "鲁米那斯")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+		如果(curAction == "回补")
+			perCard1 = 获取物品数量("口袋龙的卡片")
+			card1 = card1 + perCard1
+			perCard2 = 获取物品数量("地狱看门犬的卡片")
+			card2 = card2 + perCard2
+
+			移动到(11,12)
+			出售物品(2,"魔石|口袋龙的卡片|地狱看门犬的卡片")
+			//等待(12000)
+			curAction = "拾荒"
+			
+			perFragment1 = 获取物品数量("水的水晶碎片") - (fragment1 + fragment1Start)
+			fragment1 = fragment1 + perFragment1
+			perFragment2 = 获取物品数量("火的水晶碎片") - (fragment2 + fragment2Start)
+			fragment2 = fragment2 + perFragment2
+			perFragment3 = 获取物品数量("风的水晶碎片") - (fragment3 + fragment3Start)
+			fragment3 = fragment3 + perFragment3
+			
+			perGold = 人物详细信息(28) - (goldStart + gold)
+			gold = gold + perGold
+
+			//花费的时间
+			totalTimeCost = 返回计时器()
+			timeCost = totalTimeCost - timeSavePoint
+
+			//脚本获得
+			obtainPerFragments = perFragment1+perFragment2+perFragment3
+			obtainFragments = fragment1+fragment2+fragment3
+			obtainPerCards = perCard1+perCard2
+			obtainCards = card1+card2
+
+			//效率计算
+			effyOnceFragment = (obtainPerFragments/timeCost)*1000 \ 1 / 1000
+			effyOnceCard = (obtainPerCards/timeCost)*1000 \ 1 / 1000
+			effyOnceGold = (perGold/timeCost)*1000 \ 1 / 1000
+
+			effyAvgFragment = (obtainFragments/totalTimeCost)*1000 \ 1 / 1000
+			effyAvgCard = (obtainCards/totalTimeCost)*1000 \ 1 / 1000
+			effyAvgGold = (gold/totalTimeCost)*1000\1/1000
+
+			发送聊天("水:" $ perFragment1 $ "(" $ fragment1 $ ")" $ "\S火:" $ perFragment2 $ "(" $ fragment2 $ ")" $ "\S风:" $ perFragment3 $ "(" $ fragment3 $ ")\S总:" $ obtainPerFragments $ "(" $ obtainFragments $ ")[" $ (obtainFragments+fragment1Start+fragment2Start+fragment3Start) $ "]...", 4, 1)
+			发送聊天("口袋龙卡:" $ perCard1 $ "(" $ card1 $ ")" $ "\S地狱看门犬卡:" $ perCard2 $ "(" $ card2 $ ")\S总:" $ obtainPerCards $ "(" $ obtainCards $")...", 4, 1)
+			发送聊天("金钱:" $ perGold $ "(" $ gold $ ")[" $ (goldStart + gold) $ "]...", 4, 1)
+			发送聊天("单次(" $ timeCost $ "s):" $ "碎片(" $ effyOnceFragment $ ")\S卡片(" $ effyOnceCard $ ")\S金钱(" $ effyOnceGold $ ")...", 1, 1)
+			发送聊天("平均(" $ totalTimeCost $ "s):碎片(" $ effyAvgFragment $ ")" $ "\S卡片(" $ effyAvgCard $ ")\S金钱(" $ effyAvgGold $ ")...", 1, 1)
+
+			perFragment1 = 0
+			perFragment2 = 0
+			perFragment3 = 0
+			perCard1 = 0
+			perCard2 = 0
+			perGold = 0
+			timeSavePoint = 返回计时器()
+		如果尾()
+	循环尾()
+
+循环尾()

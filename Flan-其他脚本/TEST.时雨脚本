@@ -1,0 +1,56 @@
+自动寻路(300,873)
+gotoX = 307
+gotoY = 881
+curX = 人物详细信息(35)
+curY = 人物详细信息(36)
+isAutoMove = 0
+//快速移动排除范围
+定义数组(xMoveLimits,0)
+加入成员(xMoveLimits,"886,891,886,891,309,310")
+加入成员(xMoveLimits,"870,875,870,876,300,301")
+加入成员(xMoveLimits,"884,885,884,886,293,294")
+加入成员(xMoveLimits,"871,876,873,876,300,301")
+xMoveLimitsCount = 取成员数(xMoveLimits)
+定义数组(yMoveLimits,0)
+加入成员(yMoveLimits,"277,280,270,279,878,879")
+加入成员(yMoveLimits,"295,301,300,307,873,874")
+加入成员(yMoveLimits,"294,301,286,297,884,885")
+加入成员(yMoveLimits,"299,305,295,305,873,874")
+加入成员(yMoveLimits,"309,321,310,321,874,882")
+加入成员(yMoveLimits,"306,321,310,321,881,882")
+加入成员(yMoveLimits,"306,313,309,321,889,890")
+yMoveLimitsCount = 取成员数(yMoveLimits)
+
+j = 1
+循环(j <= xMoveLimitsCount && !isAutoMove)
+	分割文本(xMoveLimit,xMoveLimits.j,",")
+	如果((curY>=xMoveLimit.1&&curY<=xMoveLimit.2&&gotoY>=xMoveLimit.3&&gotoY<=xMoveLimit.4) != 0)
+		发送聊天("南北坐标符合")
+		如果(((curX>=xMoveLimit.6&&gotoX<=xMoveLimit.5) || (curX<=xMoveLimit.5&&gotoX>=xMoveLimit.6)) != 0)
+			isAutoMove = 1
+			跳出循环()
+		如果尾()
+	如果尾()
+	j = j + 1
+循环尾()
+
+j = 1
+循环(j <= yMoveLimitsCount)
+	分割文本(yMoveLimit,yMoveLimits.j,",")
+	如果((curX>=yMoveLimit.1&&curX<=yMoveLimit.2&&gotoX>=yMoveLimit.3&&gotoX<=yMoveLimit.4) != 0)
+		//发送聊天((curX>=yMoveLimit.1&&curX<=yMoveLimit.2&&gotoX>=yMoveLimit.3&&gotoX<=yMoveLimit.4) != 0)
+		发送聊天(curY $ ">=" $ yMoveLimit.6 $ "&&" $ gotoY $ "<=" $ yMoveLimit.5 $ "||" $ curY $ "<=" $ yMoveLimit.5 $ "&&" $ gotoY $ ">=" $ yMoveLimit.6 $ "!=" $ 0)
+		如果(((curY>=yMoveLimit.6&&gotoY<=yMoveLimit.5) || (curY<=yMoveLimit.5&&gotoY>=yMoveLimit.6)) != 0)
+			isAutoMove = 1
+			跳出循环()
+		如果尾()
+	如果尾()
+	j = j + 1
+循环尾()
+
+如果(!isAutoMove)
+	移动到(gotoX,gotoY)
+如果尾()
+如果(isAutoMove)
+	自动寻路(gotoX,gotoY)
+如果尾()

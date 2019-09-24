@@ -1,0 +1,193 @@
+
+//XY变化量,拾取方向
+定义数组(directionDeltas, 0)
+加入成员(directionDeltas, "0,-1,4")
+//加入成员(directionDeltas, "1,-1,5")
+加入成员(directionDeltas, "1,0,6")
+//加入成员(directionDeltas, "1,1,7")
+加入成员(directionDeltas, "0,1,0")
+//加入成员(directionDeltas, "-1,1,1")
+加入成员(directionDeltas, "-1,0,2")
+//加入成员(directionDeltas, "-1,-1,3")
+directionDeltaCount = 取成员数(directionDeltas)
+
+//无效范围
+分割文本(invaildRangeX, "550~552", "~")
+分割文本(invaildRangeY, "330~334", "~")
+
+//捡拾物品列表
+定义数组(pickupNames, 0)
+加入成员(pickupNames, "魔石")
+加入成员(pickupNames, "地的水晶碎片")
+加入成员(pickupNames, "水的水晶碎片")
+加入成员(pickupNames, "火的水晶碎片")
+加入成员(pickupNames, "风的水晶碎片")
+加入成员(pickupNames, "卡片？")
+加入成员(pickupNames, "秘文之皮")
+加入成员(pickupNames, "星之砂")
+加入成员(pickupNames, "奇香木")
+pickupNamesCount = 取成员数(pickupNames)
+
+//有无探测到
+定义数组(pickupCoordStrs, pickupNamesCount)
+i = 1
+循环(i <= pickupNamesCount)
+	pickupCoordStrs.i = pickupNames.i
+	i = i + 1
+循环尾()
+
+循环(1)
+
+	循环(人物详细信息(34) == "肯吉罗岛")
+		//无效范围
+		分割文本(invaildRangeX, "550~552", "~")
+		分割文本(invaildRangeY, "330~334", "~")
+
+		// begin 捡东西模块
+		iiName = 0
+		循环(人物详细信息(33) < 20)
+			iName = iiName % pickupNamesCount + 1
+			pickupName = pickupNames.iName
+			pickupCount = 20
+			//发送聊天( iName$ ":" $pickupName, 0, 1)
+			pickupCoordStrs.iName = 获取周围信息(pickupNames.iName, "物品")
+
+			如果(pickupCoordStrs.iName != "")
+				分割文本(pickupCoord, pickupCoordStrs.iName, "|")
+
+				gotoX = pickupCoord.2
+				gotoY = pickupCoord.3
+
+				//发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")", 6, 1)
+				isInvaildRange = gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2
+				//不在无效范围才移动
+				如果(!isInvaildRange)
+					发送聊天(pickupName $ ":("$ gotoX $ "," $ gotoY $ ")", 2, 1)
+
+					自动寻路(gotoX,gotoY)
+
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					//走到指定位置
+					如果(curX == gotoX && curY == gotoY)
+						拾取物品(0)
+						拾取物品(1)
+						拾取物品(2)
+						拾取物品(3)
+						拾取物品(4)
+						拾取物品(5)
+						拾取物品(6)
+						拾取物品(7)
+					如果尾()
+				如果尾()
+
+				如果(isInvaildRange)
+					iDirection = 1
+					循环(iDirection <= 4)
+						分割文本(directionDelta, directionDeltas.iDirection, ",")
+						gotoX = pickupCoord.2 + directionDelta.1
+						gotoY = pickupCoord.3 + directionDelta.2
+
+						//不在无效范围才移动
+						如果( !(gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2) )
+							发送聊天("移动("$ gotoX $ "," $ gotoY $ ")", 1, 1)
+
+							自动寻路(gotoX,gotoY)
+
+							curX = 人物详细信息(35)
+							curY = 人物详细信息(36)
+							//走到指定位置
+							如果(curX == gotoX && curY == gotoY)
+								//拾取物品(directionDelta)
+								拾取物品(0)
+								拾取物品(1)
+								拾取物品(2)
+								拾取物品(3)
+								拾取物品(4)
+								拾取物品(5)
+								拾取物品(6)
+								拾取物品(7)
+							如果尾()
+
+							跳出循环()
+
+						如果尾()
+
+						iDirection = iDirection + 1
+					循环尾()
+				如果尾()
+
+			如果尾()
+			iiName = iiName + 1
+			
+			如果(iName == pickupNamesCount)
+				i = 1
+				isDetected = 0
+				循环(i <= pickupNamesCount && !isDetected)
+					isDetected = (pickupCoordStrs.i != "")
+					i = i + 1
+				循环尾()
+				
+				如果(!isDetected)
+					发送聊天("探测不到物品，请移动或者换图",0,1)
+				如果尾()
+				
+			如果尾()
+			
+		循环尾()
+		// end 捡东西模块
+
+	循环尾()
+
+	循环(人物详细信息(34) == "圣骑士营地")
+		//无效范围
+		分割文本(invaildRangeX, "36~36", "~")
+		分割文本(invaildRangeY, "86~88", "~")
+
+		// begin 捡东西模块
+		iiName = 0
+		循环(人物详细信息(33) < 20)
+			iName = iiName % pickupNamesCount + 1
+			pickupName = pickupNames.iName
+			pickupCount = 20
+			//发送聊天( iName$ ":" $pickupName, 0, 1)
+			pickupCoordStrs.iName = 获取周围信息(pickupNames.iName, "物品")
+
+			如果(pickupCoordStrs.iName != "")
+				分割文本(pickupCoord, pickupCoordStrs.iName, "|")
+
+				gotoX = pickupCoord.2
+				gotoY = pickupCoord.3
+
+				//发送聊天( pickupName $ "(" $ pickupCoord.2 $ "," $ pickupCoord.3 $ ")", 6, 1)
+				//不在无效范围才移动
+				如果( !(gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2) )
+					发送聊天(pickupName $ ":("$ gotoX $ "," $ gotoY $ ")", 2, 1)
+
+					自动寻路(gotoX,gotoY)
+
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					//走到指定位置
+					如果(curX == gotoX && curY == gotoY)
+						拾取物品(0)
+						拾取物品(1)
+						拾取物品(2)
+						拾取物品(3)
+						拾取物品(4)
+						拾取物品(5)
+						拾取物品(6)
+						拾取物品(7)
+					如果尾()
+				如果尾()
+
+			如果尾()
+			iiName = iiName + 1
+		循环尾()
+		// end 捡东西模块
+
+	循环尾()
+
+循环尾()
+
+

@@ -1,0 +1,135 @@
+// 贩卖包里第一个出现的物品，自动判断其是论"个"卖还是论"组"卖
+// 您只需要设定一个单价
+
+//要贩售的道具
+saleItem = ""
+itemLv = 1
+itemStack = 1
+itemUnit = "个"
+
+//叫喊大小和颜色
+sayFontSize = 0
+sayColor = 4
+
+// 9 ~ 28
+iPackPos = 9
+循环(saleItem == "" && iPackPos <= 28)
+	saleItem = 物品详细信息(iPackPos, 1)
+	如果(saleItem != "")
+		itemLv = 物品详细信息(iPackPos, 3)
+		itemStack = 物品详细信息(iPackPos, 4)
+		如果(itemStack > 1)
+			itemUnit = "组"
+			sayColor = 0
+		如果尾()
+		跳出循环()
+	如果尾()
+	iPackPos = iPackPos + 1
+循环尾()
+
+//发送聊天( "Lv." $ itemLv $ "[" $ saleItem $ "(" $ itemStack $ ")]", 0, 1 )
+
+salePrice = 信息输入("贩卖价格", "请输入贩卖单价", itemLv * itemLv * 200)
+
+//库存量
+分割文本( stockNumber, 获取物品数量(saleItem) / itemStack, "." )
+stock = stockNumber.1
+
+
+//叫喊内容
+状态控制(1)
+
+mySay = 信息输入("自定义叫喊", "请输入自定义叫喊", "")
+//\S地点(" $人物详细信息(35)$ "," $人物详细信息(36) $ ")
+sayStr = "自动出售Lv." $ itemLv $ "[" $ saleItem $ "]\S" $ mySay
+发送聊天(sayStr, sayColor, sayFontSize)
+
+sayStr0 = "单价:" $ salePrice $ "Ｇ\S库存:" $ stock $ itemUnit
+发送聊天(sayStr0, sayColor, sayFontSize)
+
+sayStr1 = "购买请入队,开启[聊,易]\S说:买N" $ itemUnit $ "\SN∈(1~20)"
+发送聊天(sayStr1, sayColor, sayFontSize)
+
+//叫喊间隔
+sayInterval = 30
+初始化计时器()
+
+isTeamPrompt = 1
+
+循环(stock > 0)
+
+	nPeople = 人物详细信息(37)
+	如果(nPeople > 1)
+		状态控制(1+8)
+		如果(isTeamPrompt)
+			isTeamPrompt = 0
+			sayStr = "当前库存:" $ stock $ itemUnit $ "\S请开启[聊,易]\S说:买N" $ itemUnit $ "\SN∈(1~20)"
+			发送聊天(sayStr, 1, 1)
+		如果尾()
+		
+		amount = 1
+		循环(amount < 21)
+			guestName = 获取信息记录( "买" $ amount $ itemUnit, "普通")
+			如果(guestName != "")
+				saleCount = amount
+				如果(amount > stock)
+					saleCount = stock
+				如果尾()
+				i = 2
+				循环( i <= nPeople )
+					characterName = 队伍信息(i, 1)
+					如果(guestName == "[GP]" $ characterName)
+						发送聊天("欢迎[" $ characterName $ "]光临", 1, 1)
+						发送聊天( "给[" $ saleItem $ "]" $ saleCount $ itemUnit $ "\S收[" $ characterName $ "]金钱" $ salePrice * saleCount $"Ｇ", 1, 1)
+						发送聊天(主动交易( saleItem $ "|" $ saleCount * itemStack, characterName $ "|金钱|" $ salePrice * saleCount ), 1, 1)
+						跳出循环()
+					如果尾()
+					i = i + 1
+				循环尾()
+
+				如果( i > nPeople && guestName != 人物详细信息(1) )
+					发送聊天("请您入队开启[聊,易],并重新发送指令", 6, 1)
+				如果尾()
+			如果尾()
+			amount = amount + 1
+		循环尾()
+
+	如果尾()
+	
+
+	//库存量
+	分割文本( stockNumber, 获取物品数量(saleItem) / itemStack, "." )
+	stock = stockNumber.1
+
+	如果( 返回计时器() > sayInterval )
+		初始化计时器()
+		//叫喊内容
+		状态控制(1)
+		sayStr = "自动出售Lv." $ itemLv $ "[" $ saleItem $ "]\S" $ mySay
+		发送聊天(sayStr, sayColor, sayFontSize)
+
+		sayStr0 = "单价:" $ salePrice $ "Ｇ\S库存:" $ stock $ itemUnit
+		发送聊天(sayStr0, sayColor, sayFontSize)
+
+		sayStr1 = "购买请入队,开启[聊,易]\S说:买N" $ itemUnit $ "\SN∈(1~20)"
+		发送聊天(sayStr1, sayColor, sayFontSize)
+	如果尾()
+
+	如果(nPeople < 2)
+		isTeamPrompt = 1
+		
+		//判断是否去银行存取东西
+		
+		
+		
+	如果尾()
+
+循环尾()
+
+
+
+
+
+
+
+

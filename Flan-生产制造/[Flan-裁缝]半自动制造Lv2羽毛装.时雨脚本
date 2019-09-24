@@ -1,0 +1,51 @@
+//羽毛装14
+//鹿皮280 麻布154 木棉布28
+isPunchTheClock=1
+equipName = "羽毛装"
+分割文本(material1,"鹿皮|280","|")
+分割文本(material2,"麻布|154","|")
+分割文本(material3,"木棉布|28","|")
+
+如果(人物详细信息(34) == "流行商店\\z0")
+    自动寻路(8,7)
+    循环(获取物品数量(material2.1) < material2.2 || 获取物品数量(material3.1) < material3.2 )
+        itemStr = ""
+        itemStr = itemStr $ material2.1 $ "|" $ ( material2.2 - 获取物品数量(material2.1) )
+        itemStr = itemStr $ "|"
+        itemStr = itemStr $ material3.1 $ "|" $ ( material3.2 - 获取物品数量(material3.1) )
+        发送聊天(itemStr,4,1)
+        购买物品(0,itemStr)
+        等待(1000)
+    循环尾()
+如果尾()
+
+如果(人物详细信息(34) == "里谢里雅堡")
+    自动寻路(59,83)
+
+    如果(isPunchTheClock != 0)
+        对话NPC(5,7,"","","","2")
+    如果尾()
+
+    循环(获取物品数量(material1.1) >= 20 && 获取物品数量(material2.1) >= 11 && 获取物品数量(material3.1) >= 2 )
+        r = 高速制造(equipName, "")
+        
+        如果(r == 1)
+            发送聊天("魔力不足",4,1)
+            跳出循环()
+        如果尾()
+        如果(r == 2)
+            //发送聊天("背包已满",4,1)
+        如果尾()
+        如果(r == 4)
+            //发送聊天("材料不足",4,1)
+            //curAction = "买布"
+        如果尾()
+        等待(1000)
+    循环尾()
+
+    如果(isPunchTheClock != 0)
+        对话NPC(5,7,"","","","2")
+    如果尾()
+
+
+如果尾()

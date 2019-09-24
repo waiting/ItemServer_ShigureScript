@@ -1,0 +1,599 @@
+// 【风鸣之塔封印红巨人】 请带好卡片和补给，并保证封印师有足够的实力。 —— by FlandreFan
+// 颜色含义
+// 品红:获取性提示
+// 绿:即将要做
+// 白:完成的提示
+// 蓝:功能性文字
+// 红:错误
+
+curPet = 当前出战宠物()
+humanBackHP = 人物详细信息(3)*0.5
+humanBackMP = 人物详细信息(5)*0.1
+// 如果(获取技能信息("补血魔法") > 7)
+	// humanBackMP = 人物详细信息(5)*0.25
+// 如果尾()
+petBackHP = 宠物详细信息(curPet,3)*0.4
+petBackMP = 宠物详细信息(curPet,5)*0.1
+isAutoSettings = 信息提示("是否以下列数值作为设置{ " $ "人回补血:" $ humanBackHP $ ", " $ "人回补魔:" $ humanBackMP $ ", " $ "宠回补血:" $ petBackHP $ ", " $ "宠回补魔:" $ petBackMP $ " }",36)
+如果(isAutoSettings != 5)
+	humanBackHP = 信息输入("人回补血值","人回补血值",humanBackHP)
+	humanBackMP = 信息输入("人回补魔值","人回补魔值",humanBackMP)
+	petBackHP = 信息输入("宠回补血值","宠回补血值",petBackHP)
+	petBackMP = 信息输入("宠回补魔值","宠回补魔值",petBackMP)
+如果尾()
+
+//记录战地坐标
+battlePlaceX = 0
+battlePlaceY = 0
+
+//当前要干嘛（封宠，回补，买卡）
+iCurAction = 信息输入("1.封宠，2.回补，3.买卡","去干什么",1)
+定义数组(curActions, 0)
+加入成员(curActions, "封宠")
+加入成员(curActions, "回补")
+加入成员(curActions, "买卡")
+curAction = curActions.iCurAction
+
+//有些地图名称一样，所以通过前一张地图来判断
+prevPlace = ""
+
+//封印设置
+cardName = "封印卡（人形系）"
+cardN = 1
+cardOnceBuy = 20
+//剩余宠物栏位
+定义数组(petSpaces, 0)
+
+petCatchCount = 0
+初始化计时器()
+
+发送聊天("启动了奥特曼灭族计划", 0, 1)
+
+循环( 1 )
+	循环(人物详细信息(34) == "艾尔莎岛")
+		移动到(140,105)
+		循环(人物详细信息(34) != "里谢里雅堡")
+			对话NPC(1,2,"","","",2)
+			tryCount = 0
+			循环(tryCount < 20 && 人物详细信息(34) != "里谢里雅堡")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "里谢里雅堡")
+		如果(curAction == "封宠")
+			isBuyCard = 获取物品数量(cardName) < 10
+
+			如果(isBuyCard != 0)
+				curAction = "买卡"
+				发送聊天("购买Lv.4[" $ cardName $ "]",4,1)
+			如果尾()
+
+			如果(isBuyCard == 0)
+				发送聊天("前往风鸣之塔捕捉奥特曼",4,1)
+				自动寻路(41,51)
+				移动到(41,50)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "里谢里雅堡\S1楼\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			curPet = 当前出战宠物()
+			如果(人物详细信息(2) < 人物详细信息(3) || 人物详细信息(4) < 人物详细信息(5) || 宠物详细信息(curPet,2) < 宠物详细信息(curPet,3) || 宠物详细信息(curPet,4) < 宠物详细信息(curPet,5))
+				//恢复血魔
+				自动寻路(34,89)
+				护士恢复(1)
+			如果尾()
+
+			curAction = "封宠"
+		如果尾()
+
+		如果(curAction == "买卡")
+			自动寻路(41,50)
+			//移动到(41,50)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "里谢里雅堡\S1楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "里谢里雅堡\S1楼\\z0")
+		自动寻路(45,20)
+		//移动到(45,20)
+		//等0~4s过图
+		tryCount = 0
+		循环(tryCount < 40 && 人物详细信息(34) != "启程之间\\z0")
+			等待(100)
+			tryCount = tryCount + 1
+		循环尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "启程之间\\z0")
+		退出队伍()
+		
+		如果(curAction == "封宠")
+			循环(人物详细信息(34) != "加纳村的传送点\\z0")
+				自动寻路(8,44)
+				对话NPC(0,2,"","","",2)
+				tryCount = 0
+				循环(tryCount < 20 && 人物详细信息(34) != "加纳村的传送点\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			循环尾()
+		如果尾()
+
+		如果(curAction == "买卡")
+			循环(人物详细信息(34) != "杰诺瓦镇的传送点\\z0")
+				自动寻路(15,4)
+				对话NPC(2,2,"","","",2)
+				tryCount = 0
+				循环(tryCount < 20 && 人物详细信息(34) != "杰诺瓦镇的传送点\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "加纳村的传送点\\z0")
+		如果(curAction == "封宠")
+			prevPlace = 人物详细信息(34)
+			自动寻路(5,12)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "村长的家\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "杰诺瓦镇的传送点\\z0")
+		如果(curAction == "买卡")
+			prevPlace = 人物详细信息(34)
+			自动寻路(14,6)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "村长的家\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "村长的家\\z0")
+		如果(prevPlace == "杰诺瓦镇的传送点\\z0")
+			如果(curAction == "买卡")
+				自动寻路(1,9)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "杰诺瓦镇")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+		如果尾()
+
+		如果(prevPlace == "加纳村的传送点\\z0")
+			如果(curAction == "封宠")
+				自动寻路(1,9)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "加纳村")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "杰诺瓦镇")
+		如果(curAction == "买卡")
+			自动寻路(43,23)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "杂货店\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "杂货店\\z0")
+		如果(curAction == "买卡")
+			移动到(11,12)
+	        购买物品(2, cardN $ "|" $ cardOnceBuy)
+			等待(1500)
+			发送聊天("购买[" $ cardName $ "]:" $ cardOnceBuy $ "张\S总数:" $ 获取物品数量(cardName),0,1)
+			curAction = "封宠"
+		如果尾()
+
+		如果(curAction == "封宠")
+			等待(1000)
+			登出回城()
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "艾尔莎岛")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "加纳村")
+		如果(curAction == "封宠")
+			发送聊天("抵达加纳村",0,1)
+			自动寻路(48,77)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "索奇亚")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "索奇亚")
+		//704 148
+		如果(curAction == "封宠")
+			flag1 = 0
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			//462,404
+			如果(curX >= 460 && curX <= 480 && curY >= 394 && curY <= 414)
+				flag1 = 1
+				自动寻路(462,404)
+				人物转身(6)
+				发送聊天("以军神之名开启海路",1,1)
+				对话NPC("",1,"","","",1)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "契约的海道")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+
+			如果(flag1 == 0)
+				发送聊天("横穿大沙漠，注意补充水分(>_<)！",4,1)
+				自动寻路(467,404)
+				发送聊天("横穿沙漠完毕(^_^)！",0,1)
+				移动到(462,404)
+				循环(curX != 462 || curY != 404)
+					curX = 人物详细信息(35)
+					curY = 人物详细信息(36)
+					等待(100)
+				循环尾()
+			如果尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "契约的海道")
+		如果(curAction == "封宠")
+			发送聊天("通过海道",4,1)
+			自动寻路(17,12)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "阿卡斯")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "阿卡斯")
+		如果(curAction == "封宠")
+			发送聊天("上塔",4,1)
+			自动寻路(45,69)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S1楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S1楼\\z0")
+		//50 99
+		如果(curAction == "封宠")
+			发送聊天("抵达风鸣之塔",0,1)
+			自动寻路(50,15)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S2楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S2楼\\z0")
+		//50 15
+		如果(curAction == "封宠")
+			自动寻路(50,62)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S3楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S3楼\\z0")
+		如果(curAction == "封宠")
+			flag1 = 0
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			//50 43
+			如果(curX >= 50 && curX <= 50 && curY >= 43 && curY <= 43)
+				flag1 = 1
+				自动寻路(66,81)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S4楼\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+				跳出循环()
+			如果尾()
+			//76 81
+			如果(curX >= 76 && curX <= 76 && curY >= 81 && curY <= 81)
+				flag1 = 2
+				自动寻路(88,29)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S4楼\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+				跳出循环()
+			如果尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S4楼\\z0")
+		如果(curAction == "封宠")
+			flag1 = 0
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			//63 81
+			如果(curX >= 63 && curX <= 63 && curY >= 81 && curY <= 81)
+				自动寻路(72,81)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S3楼\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+				跳出循环()
+			如果尾()
+			//89 30
+			如果(curX >= 89 && curX <= 89 && curY >= 30 && curY <= 30)
+				自动寻路(94,74)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S5楼\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+				跳出循环()
+			如果尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S5楼\\z0")
+		如果(curAction == "封宠")
+			自动寻路(89,30)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S6楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S6楼\\z0")
+		如果(curAction == "封宠")
+			自动寻路(50,90)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S7楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S7楼\\z0")
+		如果(curAction == "封宠")
+			自动寻路(50,85)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S8楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S8楼\\z0")
+		如果(curAction == "封宠")
+			自动寻路(93,65)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S9楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S9楼\\z0")
+		如果(curAction == "封宠")
+			自动寻路(90,63)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "风鸣之塔\S10楼\\z0")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+	循环(人物详细信息(34) == "风鸣之塔\S10楼\\z0")
+		如果(curAction == "封宠")
+			循环(curX != 60 || curY != 64)
+				移动到(60,64)
+				等待(100)
+				curX = 人物详细信息(35)
+				curY = 人物详细信息(36)
+			循环尾()
+
+			battlePlaceX = 人物详细信息(35)
+			battlePlaceY = 人物详细信息(36)
+
+			curPet = 当前出战宠物()
+
+			//宠物剩余栏位空间
+			清除数组(petSpaces)
+			i = 1
+			循环(i <= 5)
+				如果(i != curPet && 宠物详细信息(i,1) == "")
+					加入成员(petSpaces, i)
+				如果尾()
+				i = i + 1
+			循环尾()
+			petSpaceCount = 取成员数(petSpaces)
+			iPetInSpace = 1
+
+			//是否启动遇敌
+			isSearchEnemy = 0
+			如果(iPetInSpace <= petSpaceCount)
+				// 自动遇敌开始了
+				自动遇敌(1,3,170)
+				发送聊天("遇敌抓捕奥特曼",4,1)
+				isSearchEnemy = 1
+			如果尾()
+
+			循环(获取信息记录("<back>","普通") != "")
+				//等待消除全部<back>
+				等待(100)
+			循环尾()
+
+			循环(curAction == "封宠" && iPetInSpace <= petSpaceCount)
+				等待战斗结束()
+				curPet = 当前出战宠物()
+				如果(人物详细信息(2) < humanBackHP)
+					curAction = "回补"
+					跳出循环()
+				如果尾()
+				如果(人物详细信息(4) < humanBackMP)
+					curAction = "回补"
+					跳出循环()
+				如果尾()
+				如果(宠物详细信息(curPet,2) < petBackHP)
+					curAction = "回补"
+					跳出循环()
+				如果尾()
+				如果(宠物详细信息(curPet,4) < petBackMP)
+					curAction = "回补"
+					跳出循环()
+				如果尾()
+				如果(获取信息记录("<back>","普通") != "")
+					curAction = "回补"
+					跳出循环()
+				如果尾()
+				如果(获取物品数量(cardName) < 1)
+					curAction = "回补"
+					跳出循环()
+				如果尾()
+				如果(宠物详细信息(petSpaces.iPetInSpace,1) != "")
+					petName = 宠物详细信息(petSpaces.iPetInSpace,1)
+					petHP = 宠物详细信息(petSpaces.iPetInSpace,3)
+					petMP = 宠物详细信息(petSpaces.iPetInSpace,5)
+					petATK = 宠物详细信息(petSpaces.iPetInSpace,9)
+					petDEF = 宠物详细信息(petSpaces.iPetInSpace,10)
+					petAGL = 宠物详细信息(petSpaces.iPetInSpace,11)
+					发送聊天("捕获:" $ petName $ "(" $ petHP $ "/" $ petMP $ "/" $ petATK $ "/" $ petDEF $ "/" $ petAGL $ ")", 2, 1)
+					petCatchCount = petCatchCount + 1
+					timeTotal = 返回计时器()
+					发送聊天("捕捉:" $ petCatchCount $ "只\S效率:" $ (petCatchCount * 3600 / timeTotal) $ "只/h",1,1)
+					iPetInSpace = iPetInSpace + 1
+				如果尾()
+			循环尾()
+
+			如果(isSearchEnemy != 0)
+				自动遇敌(0)
+				发送聊天("停止了遇敌",0,1)
+			如果尾()
+
+			如果(iPetInSpace > petSpaceCount)
+				发送聊天("宠物栏已满，请丢宠物或是转存！",6,1)
+			如果尾()
+
+			等待(3000)
+
+		如果尾()
+
+		如果(curAction == "回补")
+			登出回城()
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "艾尔莎岛")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+
+循环尾()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

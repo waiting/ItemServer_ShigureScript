@@ -1,0 +1,327 @@
+// 52级内竞技场打吉拉刷声望
+// 声望因子
+lvRole = 人物详细信息(16)
+prestigeAdd10 = (寻找文本(人物详细信息(44),"驯兽") != -1) || (寻找文本(人物详细信息(44),"饲养") != -1)
+prestigeFactor = 0
+如果(lvRole <= 52)
+    prestigeFactor = 70
+    如果(prestigeAdd10)
+        prestigeFactor = prestigeFactor + 10
+    如果尾()
+如果尾()
+如果(lvRole == 53)
+    prestigeFactor = 20
+    如果(prestigeAdd10)
+        prestigeFactor = prestigeFactor + 10
+    如果尾()
+如果尾()
+如果(lvRole > 53 && lvRole < 108)
+    prestigeFactor = 10
+如果尾()
+
+isChangeJob = 信息提示("是否为转职刷声望",36) == 5
+如果(isChangeJob != 0)
+    //当前声望
+    prestigeCurrent = 信息输入("保证书转职前的声望","保证书转职前的声望",0)
+    //保证书转职后声望
+    prestigeChangeJobAfter = prestigeCurrent / 2
+    如果(prestigeChangeJobAfter > 33000)
+        prestigeChangeJobAfter = 33000
+    如果尾()
+    //还需刷的声望
+    prestigeWant = 信息输入("还需刷的声望","还需刷的声望",prestigeCurrent)
+否则()
+    //当前声望
+    prestigeCurrent = 信息输入("当前的声望","当前的声望",0)
+    //还需刷的声望
+    prestigeWant = 信息输入("还需刷的声望","还需刷的声望",800)
+如果尾()
+
+curPet = 当前出战宠物()
+humanBackHP = 人物详细信息(3)*0.36
+humanBackMP = 人物详细信息(5)*0.05
+petBackHP = 宠物详细信息(curPet,3)*0.3
+petBackMP = 宠物详细信息(curPet,5)*0.05
+isAutoSettings = 信息提示("是否以下列数值作为设置{ " $ "人回补血:" $ humanBackHP $ ", " $ "人回补魔:" $ humanBackMP $ ", " $ "宠回补血:" $ petBackHP $ ", " $ "宠回补魔:" $ petBackMP $ " }","36") == 5
+如果(isAutoSettings == 0)
+    humanBackHP = 信息输入("人回补血值","人回补血值",humanBackHP)
+    humanBackMP = 信息输入("人回补魔值","人回补魔值",humanBackMP)
+    petBackHP = 信息输入("宠回补血值","宠回补血值",petBackHP)
+    petBackMP = 信息输入("宠回补魔值","宠回补魔值",petBackMP)
+如果尾()
+
+// 执行动作【刷声望，回补，看声望，取称号】
+curAction = "刷声望"
+如果(人物详细信息(34) == "法兰城")
+    curAction = 信息输入("执行动作【刷声望，回补，看声望，取称号】","执行动作","刷声望")
+如果尾()
+
+battleCount = 0
+
+循环( 1 )
+
+    循环(人物详细信息(34) == "艾尔莎岛")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(flag == 0)
+            移动到(140,105)
+            循环(人物详细信息(34) != "里谢里雅堡")
+                对话NPC(1,7,"","","","")
+                等待(100)
+            循环尾()
+        如果尾()
+
+    循环尾()
+
+    循环(人物详细信息(34) == "里谢里雅堡")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "刷声望")
+            flag = 1
+            自动寻路(41,98)
+            循环(人物详细信息(34) != "法兰城")
+                等待(100)
+            循环尾()
+        如果尾()
+
+        如果(curAction == "看声望" || curAction == "取称号")
+            flag = 2
+            curPet = 当前出战宠物()
+            如果(人物详细信息(2) < humanBackHP || 人物详细信息(4) < humanBackMP || 宠物详细信息(curPet,2) < petBackHP || 宠物详细信息(curPet,4) < petBackMP)
+                自动寻路(34,89)
+                护士恢复(0)
+            如果尾()
+            自动寻路(54,74)
+            对话NPC(2,7,"","","",1)
+            
+            如果(curAction == "看声望")
+                curAction = "刷声望"
+            如果尾()
+            如果(curAction == "取称号")
+                自动寻路(41,98)
+                循环(人物详细信息(34) != "法兰城")
+                    等待(100)
+                循环尾()
+            如果尾()
+        如果尾()
+
+        如果(curAction == "回补")
+            flag = 3
+            curPet = 当前出战宠物()
+            如果(人物详细信息(2) < humanBackHP || 人物详细信息(4) < humanBackMP || 宠物详细信息(curPet,2) < petBackHP || 宠物详细信息(curPet,4) < petBackMP)
+                自动寻路(34,89)
+                护士恢复(1)
+            如果尾()
+            curAction = "刷声望"
+        如果尾()
+
+        如果(flag == 0)
+            发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "竞技预赛会场\\z0")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "刷声望")
+            flag = 1
+            battleCount = battleCount + 1
+            循环(获取物品数量("18257",2) > 0)
+                丢弃物品("18257",2,2,1)
+                等待(500)
+            循环尾()
+            移动到(31,23)
+            对话NPC(2,7,"","","",1)
+            等待(2000)
+            循环(获取战斗状态())
+                等待战斗结束()
+            循环尾()
+            如果(isChangeJob!=0)
+                发送聊天("第" $ battleCount $ "次战斗，累计获得声望"$ (battleCount*prestigeFactor) $ "点，总声望" $ (prestigeChangeJobAfter+battleCount*prestigeFactor+(prestigeCurrent-prestigeWant)) $ "点，还需刷" $ (prestigeWant-battleCount*prestigeFactor) $ "点",4,1)
+            否则()
+                发送聊天("第" $ battleCount $ "次战斗，累计获得声望"$ (battleCount*prestigeFactor) $ "点，总声望" $ (prestigeCurrent+battleCount*prestigeFactor) $ "点，还需刷" $ (prestigeWant-battleCount*prestigeFactor) $ "点",4,1)
+            如果尾()
+
+            如果(battleCount*prestigeFactor >= prestigeWant)
+                如果(isChangeJob!=0)
+                    发送聊天("刷声望["$(battleCount*prestigeFactor)$"点]完毕，总声望["$(prestigeChangeJobAfter+battleCount*prestigeFactor+(prestigeCurrent-prestigeWant))$"点]",8,1)
+                否则()
+                    发送聊天("刷声望["$(battleCount*prestigeFactor)$"点]完毕，总声望["$(prestigeCurrent+battleCount*prestigeFactor)$"点]",8,1)
+                如果尾()
+                curAction = "停止"
+            如果尾()
+
+            curPet = 当前出战宠物()
+            如果(人物详细信息(2) < humanBackHP || 人物详细信息(4) < humanBackMP || 宠物详细信息(curPet,2) < petBackHP || 宠物详细信息(curPet,4) < petBackMP)
+                curAction = "回补"
+            如果尾()
+
+            如果( 获取信息记录("<回补>","普通") != "" )
+                curAction = "回补"
+            如果尾()
+            如果( 获取信息记录("<看声望>","普通") != "" )
+                curAction = "看声望"
+            如果尾()
+            如果( 获取信息记录("<取称号>","普通") != "" )
+                curAction = "取称号"
+            如果尾()
+        如果尾()
+
+        如果(curAction == "回补")
+            flag = 2
+            登出回城()
+            循环(人物详细信息(34) != "艾尔莎岛")
+                等待(100)
+            循环尾()
+            跳出循环()
+        如果尾()
+
+        如果(curAction == "看声望")
+            flag = 3
+            登出回城()
+            循环(人物详细信息(34) != "艾尔莎岛")
+                等待(100)
+            循环尾()
+            跳出循环()
+        如果尾()
+
+        如果(curAction == "取称号")
+            flag = 4
+            登出回城()
+            循环(人物详细信息(34) != "艾尔莎岛")
+                等待(100)
+            循环尾()
+            跳出循环()
+        如果尾()
+
+        如果(flag == 0)
+            //发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "竞技场的入口\\z0")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "刷声望")
+            flag = 1
+            自动寻路(27,14)
+            循环(人物详细信息(34) != "治愈的广场\\z0")
+                等待(100)
+            循环尾()
+        如果尾()
+        
+        如果(flag == 0)
+            发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "治愈的广场\\z0")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "刷声望")
+            flag = 1
+            自动寻路(25,14)
+            循环(人物详细信息(34) != "竞技场\\z0")
+                对话NPC(1,7,"","","","")
+                等待(100)
+            循环尾()
+        如果尾()
+        
+        如果(flag == 0)
+            发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "竞技场\\z0")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "刷声望")
+            flag = 1
+
+            自动寻路(22,13)
+            等待(1500)
+            自动寻路(15,8)
+            等待(1500)
+            自动寻路(22,8)
+            等待(1500)
+            自动寻路(15,8)
+            等待(1500)
+            自动寻路(22,16)
+            等待(1500)
+            移动到(16,12)
+
+            丢弃物品("18256",40,2,"")
+            丢弃物品("18257",40,2,"")
+            循环(人物详细信息(34) != "休息室\\z0")
+                对话NPC(0,7,"","","","")
+                等待(100)
+            循环尾()
+        如果尾()
+        
+        如果(flag == 0)
+            发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "休息室\\z0")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "刷声望")
+            flag = 1
+            自动寻路(16,5)
+            对话NPC(5,8,"","","",1)
+            循环(人物详细信息(34) != "竞技预赛会场\\z0")
+                对话NPC(2,7,"","","","")
+                等待(100)
+            循环尾()
+
+        如果尾()
+        
+        如果(flag == 0)
+            发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+    循环(人物详细信息(34) == "法兰城")
+        //发送聊天("在[" $ 人物详细信息(34) $ "]执行[" $ curAction $ "]...", 4, 1)
+        flag = 0
+        如果(curAction == "取称号")
+            flag = 1
+            自动寻路(162,130)
+            人物转身(2)
+            循环(curX != 72 || curY != 123)
+                curX = 人物详细信息(35)
+                curY = 人物详细信息(36)
+            循环尾()
+            人物转身(2)
+            循环(curX != 233 || curY != 78)
+                curX = 人物详细信息(35)
+                curY = 人物详细信息(36)
+            循环尾()
+            自动寻路(230,82)
+            人物转身(4)
+            
+            curAction = "刷声望"
+            登出回城()
+            循环(人物详细信息(34) != "艾尔莎岛")
+                等待(100)
+            循环尾()
+            跳出循环()
+        如果尾()
+
+        如果(curAction == "刷声望")
+            flag = 2
+            自动寻路(124,161)
+            人物转身(6)
+            循环(人物详细信息(34) != "竞技场的入口\\z0")
+                等待(100)
+            循环尾()
+        如果尾()
+
+        如果(flag == 0)
+            发送聊天("动作[" $ curAction $ "]在[" $ 人物详细信息(34) $ "]是未定义的...", 6, 1)
+        如果尾()
+    循环尾()
+
+循环尾()
+

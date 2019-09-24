@@ -1,0 +1,299 @@
+//踩点拾荒
+
+isCommonNurse = 1
+
+// curPet = 当前出战宠物()
+// humanBackHP = 人物详细信息(3)*0.5
+// humanBackMP = 人物详细信息(5)*0.05
+// petBackHP = 宠物详细信息(curPet,3)*0.4
+// petBackMP = 宠物详细信息(curPet,5)*0.05
+// isAutoSettings = 信息提示("是否以下列数值作为设置{ " $ "人回补血:" $ humanBackHP $ ", " $ "人回补魔:" $ humanBackMP $ ", " $ "宠回补血:" $ petBackHP $ ", " $ "宠回补魔:" $ petBackMP $ " }","36")
+// 如果(isAutoSettings != 5)
+	// humanBackHP = 信息输入("人回补血值","人回补血值",humanBackHP)
+	// humanBackMP = 信息输入("人回补魔值","人回补魔值",humanBackMP)
+	// petBackHP = 信息输入("宠回补血值","宠回补血值",petBackHP)
+	// petBackMP = 信息输入("宠回补魔值","宠回补魔值",petBackMP)
+// 如果尾()
+
+//当前要干嘛
+iCurAction = 1
+//信息输入("1.拾荒，2.回补","去干什么",1)
+定义数组(curActions, 0)
+加入成员(curActions, "拾荒")
+加入成员(curActions, "回补")
+curAction = curActions.iCurAction
+
+//捡拾踩点【x,y,expired(s)】
+定义数组(pickupPoints, 0)
+
+加入成员(pickupPoints, "550,332,6")
+
+//加入成员(pickupPoints, "549,323,60")
+//加入成员(pickupPoints, "549,326,30")
+加入成员(pickupPoints, "549,329,20")
+加入成员(pickupPoints, "549,332,12")
+加入成员(pickupPoints, "549,335,20")
+//加入成员(pickupPoints, "549,338,30")
+//加入成员(pickupPoints, "549,341,60")
+
+//加入成员(pickupPoints, "546,341,60")
+//加入成员(pickupPoints, "546,338,30")
+加入成员(pickupPoints, "546,335,20")
+加入成员(pickupPoints, "546,332,12")
+加入成员(pickupPoints, "546,329,20")
+//加入成员(pickupPoints, "546,326,30")
+//加入成员(pickupPoints, "546,323,60")
+
+//加入成员(pickupPoints, "543,323,60")
+//加入成员(pickupPoints, "543,326,30")
+加入成员(pickupPoints, "543,329,20")
+加入成员(pickupPoints, "543,332,12")
+加入成员(pickupPoints, "543,335,20")
+//加入成员(pickupPoints, "543,338,30")
+//加入成员(pickupPoints, "543,341,60")
+
+//加入成员(pickupPoints, "540,341,60")
+//加入成员(pickupPoints, "540,338,30")
+加入成员(pickupPoints, "540,335,20")
+加入成员(pickupPoints, "540,332,12")
+加入成员(pickupPoints, "540,329,20")
+//加入成员(pickupPoints, "540,326,30")
+//加入成员(pickupPoints, "540,323,60")
+
+// //加入成员(pickupPoints, "537,323,60")
+// 加入成员(pickupPoints, "537,326,30")
+// 加入成员(pickupPoints, "537,329,20")
+// 加入成员(pickupPoints, "537,332,12")
+// 加入成员(pickupPoints, "537,335,20")
+// 加入成员(pickupPoints, "537,338,30")
+// //加入成员(pickupPoints, "537,341,60")
+
+pickupPointsCount = 取成员数(pickupPoints)
+//有效期
+定义数组(pickupExpires, pickupPointsCount)
+
+//无效范围
+分割文本(invaildRangeX, "550~552", "~")
+分割文本(invaildRangeY, "330~334", "~")
+
+//XY变化量,拾取方向
+定义数组(directionDeltas, 0)
+加入成员(directionDeltas, "0,-1,4")
+//加入成员(directionDeltas, "1,-1,5")
+加入成员(directionDeltas, "1,0,6")
+//加入成员(directionDeltas, "1,1,7")
+加入成员(directionDeltas, "0,1,0")
+//加入成员(directionDeltas, "-1,1,1")
+加入成员(directionDeltas, "-1,0,2")
+//加入成员(directionDeltas, "-1,-1,3")
+directionDeltaCount = 取成员数(directionDeltas)
+
+//计时器
+初始化计时器()
+
+自动叠加道具(2, "星之砂|40")
+自动叠加道具(2, "秘文之皮|40")
+自动叠加道具(2, "奇香木|40")
+自动叠加道具(1)
+
+
+循环( 1 )
+
+	循环(人物详细信息(34) == "圣骑士营地")
+		如果(curAction == "回补")
+			//是否含问号卡片
+			isNoCard = 获取物品数量("卡片？") < 1
+			如果(!isNoCard)
+				自动寻路(95,72)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "医院\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+			如果(isNoCard)
+				自动寻路(87,72)
+				//等0~4s过图
+				tryCount = 0
+				循环(tryCount < 40 && 人物详细信息(34) != "工房\\z0")
+					等待(100)
+					tryCount = tryCount + 1
+				循环尾()
+			如果尾()
+
+		如果尾()
+		如果(curAction == "拾荒")
+			自动寻路(37,87)
+			移动到(36,87)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "肯吉罗岛")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "医院\\z0")
+		如果(curAction == "拾荒")
+			自动寻路(5,20)
+			移动到(0,20)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "圣骑士营地")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+		如果(curAction == "回补")
+			丢弃物品("星之砂",39,1,2)
+			丢弃物品("秘文之皮",39,1,2)
+			丢弃物品("奇香木",39,1,2)
+			移动到(5,20)
+			如果(isCommonNurse == 0)
+				移动到(9,16)
+				移动到(9,10)
+				移动到(9,12)
+				IdentifyOK = 1
+				循环(IdentifyOK != 0)
+					IdentifyOK = 高速鉴定()
+					护士恢复(1)
+				循环尾()
+			如果尾()
+			如果(isCommonNurse != 0)
+				自动寻路(17,17)
+				//移动到(17,13)
+				移动到(17,15)
+				//移动到(17,13)
+				IdentifyOK = 1
+				循环(IdentifyOK != 0)
+					IdentifyOK = 高速鉴定()
+					护士恢复(1)
+				循环尾()
+			如果尾()
+
+			自动寻路(5,20)
+			移动到(0,20)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "圣骑士营地")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "工房\\z0")
+		如果(curAction == "拾荒")
+			自动寻路(30,37)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "圣骑士营地")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+		如果(curAction == "回补")
+			自动寻路(20,22)
+			// 移动到(20,23)
+			// 移动到(20,22)
+			// 移动到(20,23)
+			// 移动到(20,22)
+			// 移动到(20,23)
+			// 移动到(20,22)
+
+			curX = 人物详细信息(35)
+			curY = 人物详细信息(36)
+			如果(curX == 20 && curY == 23)
+				出售物品(2,"魔石|锹型虫的卡片|虎头蜂的卡片|绿色口臭鬼的卡片|水晶怪的卡片|水蜘蛛的卡片|狮鹫的卡片")
+			如果尾()
+			如果(curX == 20 && curY == 22)
+				出售物品(3,"魔石|锹型虫的卡片|虎头蜂的卡片|绿色口臭鬼的卡片|水晶怪的卡片|水蜘蛛的卡片|狮鹫的卡片")
+			如果尾()
+			//等待(12000)
+			curAction = "拾荒"
+		如果尾()
+	循环尾()
+
+	循环(人物详细信息(34) == "肯吉罗岛")
+		如果(curAction == "拾荒")
+			iiPoint = 0
+			发送聊天("--拾荒--",0,1)
+			isContinuePickup = 1
+			循环(isContinuePickup < 5)
+				iPoint = iiPoint % pickupPointsCount + 1
+				分割文本(pickupPoint, pickupPoints.iPoint, ",")
+				curTime = 返回计时器()
+				发送聊天("捡拾点(" $ pickupPoint.1 $ "," $ pickupPoint.2 $ ")\S剩余期:" $ ( pickupExpires.iPoint - curTime) $ "秒\S计时器:" $ curTime, 0, 1)
+				如果(curTime > pickupExpires.iPoint)
+					自动寻路(pickupPoint.1, pickupPoint.2)
+					拾取物品(0)
+					拾取物品(1)
+					拾取物品(2)
+					拾取物品(3)
+					拾取物品(4)
+					拾取物品(5)
+					拾取物品(6)
+					拾取物品(7)
+					//捡中间
+					iDirection = 1
+					循环(iDirection <= 4)
+						分割文本(directionDelta, directionDeltas.iDirection, ",")
+						gotoX = pickupPoint.1 + directionDelta.1
+						gotoY = pickupPoint.2 + directionDelta.2
+
+						//不在无效范围才移动
+						如果( !(gotoX >= invaildRangeX.1 && gotoX <= invaildRangeX.2 && gotoY >= invaildRangeY.1 && gotoY <= invaildRangeY.2) )
+							发送聊天("移动一格("$ gotoX $ "," $ gotoY $ ")", 1, 1)
+
+							自动寻路(gotoX,gotoY)
+
+							curX = 人物详细信息(35)
+							curY = 人物详细信息(36)
+							//走到指定位置
+							如果(curX == gotoX && curY == gotoY)
+								拾取物品(directionDelta.3)
+							如果尾()
+
+							跳出循环()
+
+						如果尾()
+
+						iDirection = iDirection + 1
+					循环尾()
+
+					curTime = 返回计时器()
+					//发送聊天(curTime $ "\S" $ pickupPoint.3,4,1)
+					pickupExpires.iPoint = curTime + pickupPoint.3
+				如果尾()
+
+				isNotFull = 人物详细信息(33) < 20
+				如果(isNotFull)
+					iiPoint = iiPoint + 1
+				如果尾()
+				如果(!isNotFull)
+					isContinuePickup = isContinuePickup + 1
+				如果尾()
+			循环尾()
+			发送聊天("--拾毕--",0,1)
+			curAction = "回补"
+			
+		如果尾()
+
+		如果(curAction == "回补")
+			自动寻路(550,332)
+			移动到(551,332)
+			//等0~4s过图
+			tryCount = 0
+			循环(tryCount < 40 && 人物详细信息(34) != "圣骑士营地")
+				等待(100)
+				tryCount = tryCount + 1
+			循环尾()
+		如果尾()
+
+	循环尾()
+
+循环尾()
