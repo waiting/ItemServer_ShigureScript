@@ -193,7 +193,7 @@ battleCount = 0
                     移动到(35,46)
                     护士恢复(2)
                 如果尾()
-                等待(3000)
+                等待(5000)
                 isBack = 0
                 battleCount = battleCount + 1
                 发送聊天("【Flan脚本】高地练级已经执行["$ battleCount $"]次。",8,1)

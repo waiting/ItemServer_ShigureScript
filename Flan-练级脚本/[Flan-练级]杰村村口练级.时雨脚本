@@ -10,7 +10,7 @@ G_IsSingle = 1
 G_SaleItems = "魔石|蔓陀罗草的卡片|火焰哥布林的卡片|卡片？"
 // 堆叠物品 item1|20,item2|3
 G_StackItems = "曼陀罗草的皮|5"
-// 丢弃物品 item1|item2
+// 丢弃物品 item1,item2
 G_ThrowItems = "布？"
 
 // 如果有堆叠物品，则加入自动堆叠列表
@@ -80,6 +80,7 @@ curAction = "练级"
 如果(人物详细信息(34) == "杰诺瓦镇" || 人物详细信息(34) == "莎莲娜")
     curAction = 信息输入("执行动作【练级，回补】","执行动作","练级")
 如果尾()
+
 battleCount = 0
 
 循环( 1 )
@@ -239,7 +240,7 @@ battleCount = 0
 
             // 自动遇敌开始了
             自动遇敌(1,G_EnemyMeetMode.1,G_EnemyMeetMode.2)
-            循环(curAction == "练级" && 是否需要回补() == 0)
+            循环(是否需要回补() == 0 && (G_IsSaleStone == 0 || 人物详细信息(33) < 20))
                 等待(1000)
                 等待战斗结束()
             循环尾()

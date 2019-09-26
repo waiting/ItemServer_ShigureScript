@@ -152,12 +152,12 @@ timeNode = 0
 				如果尾()
 			循环尾()
 
-			timeCost = 返回计时器()
+			timeCost = 返回计时器()/1000
 			onceTimeCost = timeCost - timeNode
 			timeNode = timeCost
 
-			发送聊天("单次Exp:" $ onceExp $ ", 单效:" $ onceExp/onceTimeCost, 1, 1)
-			发送聊天("总共Exp:" $ totalExp $ ", 平均:" $ totalExp/timeCost, 1, 1)
+			发送聊天("单次Exp:" $ onceExp $ ", 单效:" $ onceExp/onceTimeCost, 4, 1)
+			发送聊天("总共Exp:" $ totalExp $ ", 平均:" $ totalExp/timeCost, 4, 1)
 
 			isBack = 1
 		如果尾()
