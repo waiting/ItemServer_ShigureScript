@@ -11,13 +11,13 @@ countLv5Skill = ĞÅÏ¢ÊäÈë("Ë¢¼¸´ÎÎå¼¼£¨ĞŞÀí¼¼ÄÜÄÍÁ¦+3,ÁéÇÉ+3,ÖÇÁ¦-2£©£¬ÊäÈë0¼´Ö»É
 iCurAction = ĞÅÏ¢ÊäÈë("1.Âò×°±¸£¬2.Åª»µ£¬3.ĞŞ×°±¸£¬4.ÖØÑ§¼¼ÄÜ","È¥¸ÉÊ²Ã´","2")
 ¶¨ÒåÊı×é(curActions, 0)
 ¼ÓÈë³ÉÔ±(curActions, "Âò×°±¸")
-actBuyEquip = 1
+actBuyEquip = È¡³ÉÔ±Êı(curActions)
 ¼ÓÈë³ÉÔ±(curActions, "Åª»µ")
-actBroken = 2
+actBroken = È¡³ÉÔ±Êı(curActions)
 ¼ÓÈë³ÉÔ±(curActions, "ĞŞ×°±¸")
-actRepairEquip = 3
+actRepairEquip = È¡³ÉÔ±Êı(curActions)
 ¼ÓÈë³ÉÔ±(curActions, "ÖØÑ§¼¼ÄÜ")
-actRelearnSkill = 4
+actRelearnSkill = È¡³ÉÔ±Êı(curActions)
 
 
 // ÊÇ·ñ´ò¿¨
@@ -32,6 +32,8 @@ equipName = "¹úÃñ½£"
 equipNo = 1
 //×°±¸Óû»ñÈ¡ÊıÁ¿»òÊµ¼ÊÊıÁ¿£¨»á×Ô¶¯¼ì²â£©
 equipCount = 20
+//±³°üÆğÊ¼Î»ÖÃ
+curPackPos = 9
 
 //ÅĞ¶ÏµÈ¼¶
 lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
@@ -102,35 +104,33 @@ lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
                     Èç¹û(»ñÈ¡ĞÅÏ¢¼ÇÂ¼("±»²»¿ÉË¼ÒéµÄÁ¦Á¿ËÍ³öÁË","ÏµÍ³") != "")
                         Ìø³öÑ­»·()
                     Èç¹ûÎ²()
-                    µÈ´ı(1000)
                 Ñ­»·Î²()
                 ×Ô¶¯ÓöµĞ(0)
             Èç¹ûÎ²()
 
-            µÈ´ıÕ½¶·½áÊø()
             //ÊÇ·ñ½»»»×°±¸
             isSwapEquip = 0
             //ÄÍ¾Ã0£¬ÄÍ¾Ã²»Âú»»×°±¸
             Èç¹û(dur == 0 || dur < maxDur)
                 curEquipName = ÎïÆ·ÏêÏ¸ĞÅÏ¢(pos, 1)
-                iPackPos = 9
-                Ñ­»·(isSwapEquip == 0 && iPackPos <= 28)
-                    itemName = ÎïÆ·ÏêÏ¸ĞÅÏ¢(iPackPos, 1)
-                    itemType = ÎïÆ·ÏêÏ¸ĞÅÏ¢(iPackPos, 5)
+
+                Ñ­»·(isSwapEquip == 0 && curPackPos <= 28)
+                    itemName = ÎïÆ·ÏêÏ¸ĞÅÏ¢(curPackPos, 1)
+                    itemType = ÎïÆ·ÏêÏ¸ĞÅÏ¢(curPackPos, 5)
                     Èç¹û(itemName != "" && (itemType >= 0 && itemType <= 6))
-                        itemCurDur = ÎïÆ·ÏêÏ¸ĞÅÏ¢(iPackPos, 7)
-                        itemMaxDur = ÎïÆ·ÏêÏ¸ĞÅÏ¢(iPackPos, 8)
+                        itemCurDur = ÎïÆ·ÏêÏ¸ĞÅÏ¢(curPackPos, 7)
+                        itemMaxDur = ÎïÆ·ÏêÏ¸ĞÅÏ¢(curPackPos, 8)
                         //ÂúÄÍ¾ÃµÄ²Å»»
                         Èç¹û(itemCurDur == itemMaxDur)
-                            ÒÆ¶¯ÎïÆ·(iPackPos, pos)
+                            ÒÆ¶¯ÎïÆ·(curPackPos, pos)
                             µÈ´ı(1000)
                             isSwapEquip = 1
                             ·¢ËÍÁÄÌì( "Ğ¶ÏÂ[" $ curEquipName $ "]£¬ÄÍ¾Ã:" $ dur $ "/" $ maxDur, 0, 1)
                             µÈ´ı(500)
-                            ·¢ËÍÁÄÌì( "»»ÉÏ<" $ (iPackPos - 8) $ ">[" $ itemName $ "]£¬ÄÍ¾Ã:" $ itemCurDur $ "/" $ itemMaxDur, 4, 1)
+                            ·¢ËÍÁÄÌì( "»»ÉÏ<" $ (curPackPos - 8) $ ">[" $ itemName $ "]£¬ÄÍ¾Ã:" $ itemCurDur $ "/" $ itemMaxDur, 4, 1)
                         Èç¹ûÎ²()
                     Èç¹ûÎ²()
-                    iPackPos = iPackPos + 1
+                    curPackPos = curPackPos + 1
                 Ñ­»·Î²()
             Èç¹ûÎ²()
 
@@ -302,6 +302,7 @@ lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
             Ñ­»·Î²()
         Èç¹ûÎ²()
         Èç¹û(iCurAction == actRepairEquip)
+            //Ğ¶ÏÂÎäÆ÷
             //ÅĞ¶ÏÊÖÉÏÄÃÃ»ÄÃÎäÆ÷
             dur1 = ÎïÆ·ÏêÏ¸ĞÅÏ¢(3, 7)
             dur2 = ÎïÆ·ÏêÏ¸ĞÅÏ¢(4, 7)
@@ -331,6 +332,9 @@ lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
                 iPackPos = iPackPos + 1
             Ñ­»·Î²()
 
+            //ÖØÖÃ±³°üÆğÊ¼Î»ÖÃ
+            curPackPos = 9
+
             ×Ô¶¯Ñ°Â·(57,83)
             //´ò¿¨
             Èç¹û(isPunchTheClock != 0)
@@ -347,7 +351,7 @@ lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
             Èç¹û(isPunchTheClock != 0)
                 ¶Ô»°NPC(3,7,"","","",2)
             Èç¹ûÎ²()
-            
+
             //ÅĞ¶ÏµÈ¼¶
             lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
             Èç¹û(lvSkill == 1)
@@ -366,18 +370,12 @@ lvSkill = »ñÈ¡¼¼ÄÜĞÅÏ¢("ĞŞÀíÎäÆ÷")
                 Èç¹ûÎ²()
             Èç¹ûÎ²()
 
-
         Èç¹ûÎ²()
         Èç¹û(iCurAction == actRelearnSkill)
             
         Èç¹ûÎ²()
 
     Ñ­»·Î²()
-
-
-
-
-
 
 Ñ­»·Î²()
 
