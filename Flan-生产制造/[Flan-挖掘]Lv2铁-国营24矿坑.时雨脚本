@@ -2,6 +2,8 @@
 // 任意位置启动
 //
 
+标记("挖矿")
+
 tradeOresX = 28
 tradeOresY = 6
 tradeOrientation = 0
@@ -26,7 +28,6 @@ isSaveInBank = 5
 
 isBack = 0
 
-标记("挖矿")
 循环( 1 )
 
 	循环(人物详细信息(34) == "艾尔莎岛")

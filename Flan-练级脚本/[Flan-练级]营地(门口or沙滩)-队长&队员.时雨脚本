@@ -9,7 +9,7 @@
 // 单人or多人
 G_IsSingle = 0
 // 卖的物品
-G_SaleItems = "魔石|锹型虫的卡片|虎头蜂的卡片|绿色口臭鬼的卡片|水晶怪的卡片|水蜘蛛的卡片|狮鹫的卡片|卡片？"
+G_SaleItems = "魔石|锹型虫的卡片|虎头蜂的卡片|绿色口臭鬼的卡片|水晶怪的卡片|水蜘蛛的卡片|狮鹫兽的卡片|卡片？"
 // 堆叠物品 item1|20,item2|3
 G_StackItems = ""
 // 丢弃物品 item1,item2
@@ -68,6 +68,8 @@ G_ThrowItems = "卡片？,星之砂,秘文之皮,奇香木"
     G_IsSaleStone = 信息提示("包满是否出售魔石",36) == 5
     // 是否普通护士
     G_IsCommonNurse = 信息提示("是否去资深护士（即是否不去普通护士）？",36) != 5
+    // 护士等待
+    G_WaitNurse = 0
     // 练级点
     如果(取成员数(G_MonsterPlaceChoice) > 1)
         G_MonsterPlace = 信息输入(G_MonsterPlaceChoice.1,"选择练级地点",G_MonsterPlaceChoice.2)
@@ -382,14 +384,18 @@ battleCount = 0
                     移动到(9,12)
                     等待(2000)
                     护士恢复(1)
+                    如果(G_WaitNurse > 0)
+                        等待(G_WaitNurse)
+                    如果尾()
                 如果尾()
                 如果(G_IsCommonNurse != 0)
                     自动寻路(17,17)
-                    //移动到(17,13)
                     移动到(17,15)
-                    //移动到(17,13)
                     等待(2000)
                     护士恢复(1)
+                    如果(G_WaitNurse > 0)
+                        等待(G_WaitNurse)
+                    如果尾()
                 如果尾()
                 isBack = 0
                 battleCount = battleCount + 1
